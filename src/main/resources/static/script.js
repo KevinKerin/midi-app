@@ -3,15 +3,17 @@ console.log(synth);
 var array = [], savedSong1 = [], savedSong2 = [], savedSong3 = [], savedSong4 = [], savedSong5 = [],
 input, output, stopRecording;
 
-//var wmaw = new WebMIDIAPIWrapper( false );
+var wmaw = new WebMIDIAPIWrapper( false );
 
 WebMidi.enable(function () {
 
     console.log(WebMidi.inputs);
     console.log(WebMidi.outputs);
+    console.log(WebMidi.inputs.length);
+    console.log(WebMidi.outputs.length);
 
-    input = WebMidi.getInputById("97223846");
-    output = WebMidi.getOutputById("1243337851");
+    input = WebMidi.inputs[0];
+    output = WebMidi.outputs[0];
 
     console.log(input);
     console.log(output);

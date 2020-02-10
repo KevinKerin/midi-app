@@ -85,8 +85,7 @@ public class MidiDownloadService {
 
             return output.toByteArray();
 
-        } catch(Exception e)
-        {
+        } catch(Exception e) {
             System.out.println("Exception caught " + e.toString());
             System.out.println("midifile end ");
         } //catch
