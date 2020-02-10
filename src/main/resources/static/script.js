@@ -148,6 +148,9 @@ function octaveDown(){
 }
 
 function playback(){
+    if(!stopRecording){
+        stopRecording = true;
+    }
     console.log("Playback starting...");
     var firstNoteTime = array[0].timestamp;
     for (var i = 0; i < array.length; i ++){
@@ -217,11 +220,25 @@ function noteOff(note){
 }
 
 function downloadRecording(){
-    var loginData = {};
-    $.post( "/midi/download", array)
-      .done(function( data ) {
-        alert( "File downloading " + data );
-      });
+
+    for (var i = 0; i < array.length; i++){
+        var event = array[i];
+        console.log(JSON.stringify("channel: " + event.channel));
+        console.log(JSON.stringify("type: " + event.type));
+        console.log(JSON.stringify("timestamp: " + event.timestamp));
+        if(event.type == "noteon"){
+            console.log(JSON.stringify("note number: " + event.note.number));
+            console.log(JSON.stringify("velocity: " + event.velocity));
+        }
+
+
+
+    }
+
+//    $.post( "/midi/download", array)
+//      .done(function( data ) {
+//        alert( "File downloading " + data );
+//      });
 }
 
 function trickOfTheLight(i){
@@ -244,38 +261,6 @@ function trickOfTheLight(i){
     sleep(1000);
     if(i == 2){
         trickMelody();
-    }
-}
-
-function trickLyrics(i){
-    switch(i){
-        case 3:
-            console.log("My heart is spilling over");
-            setTimeout(lyrics(7), 2000);
-            break;
-        case 4:
-            console.log("I can't see what's around me");
-            setTimeout(lyrics(8), 2000);
-            break;
-        case 5:
-            console.log("My faith is in the balance");
-            setTimeout(lyrics(9), 2000);
-            break;
-        case 6:
-            console.log("So I return to silence...");
-            break;
-        case 7:
-            console.log("Crashing on the ground");
-            break;
-        case 8:
-            console.log("But soon I'll come round");
-            break;
-        case 9:
-            console.log("Of a million tiny words");
-            break;
-        default:
-            console.log();
-            break;
     }
 }
 
