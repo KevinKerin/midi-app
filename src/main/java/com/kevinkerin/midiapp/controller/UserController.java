@@ -17,7 +17,7 @@ public class UserController {
     @PostMapping("/login")
     public User login(@RequestBody LoginDetails ld){
         User user = new User();
-        user.setFirstName("Kevin");
+        user.setFirstName("Kvin");
         return user;
     }
 

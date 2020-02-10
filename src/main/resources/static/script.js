@@ -3,7 +3,7 @@ console.log(synth);
 var array = [], savedSong1 = [], savedSong2 = [], savedSong3 = [], savedSong4 = [], savedSong5 = [],
 input, output, stopRecording;
 
-var wmaw = new WebMIDIAPIWrapper( false );
+//var wmaw = new WebMIDIAPIWrapper( false );
 
 WebMidi.enable(function () {
 
@@ -14,6 +14,8 @@ WebMidi.enable(function () {
 
     input = WebMidi.inputs[0];
     output = WebMidi.outputs[0];
+
+    document.getElementById("connected-device").innerHTML = "Input: " + input.name + "; Output: " + output.name;
 
     console.log(input);
     console.log(output);
@@ -75,6 +77,7 @@ function showLog(){
 }
 
 function record(){
+    console.log("Recording starting...");
     stopRecording = false;
     array = [];
     input.addListener('noteon', "all",
@@ -99,8 +102,10 @@ function record(){
 
     input.addListener('controlchange', "all",
                 function (e) {
-                    console.log("Received 'controlchange' message.", e);
-                        array.push(e);
+                    if(!stopRecording){
+                        console.log("Received 'controlchange' message.", e);
+                            array.push(e);
+                    }
                 }
             );
 
