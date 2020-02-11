@@ -1,9 +1,7 @@
 const synth = new Tone.AMSynth().toMaster();
 console.log(synth);
-var array = [], savedSong1 = [], savedSong2 = [], savedSong3 = [], savedSong4 = [], savedSong5 = [],
+var array = [],
 input, output, stopRecording;
-
-//var wmaw = new WebMIDIAPIWrapper( false );
 
 WebMidi.enable(function () {
 
@@ -221,24 +219,47 @@ function noteOff(note){
 
 function downloadRecording(){
 
+    var jsonArray = [];
+
     for (var i = 0; i < array.length; i++){
         var event = array[i];
-        console.log(JSON.stringify("channel: " + event.channel));
-        console.log(JSON.stringify("type: " + event.type));
-        console.log(JSON.stringify("timestamp: " + event.timestamp));
-        if(event.type == "noteon"){
-            console.log(JSON.stringify("note number: " + event.note.number));
-            console.log(JSON.stringify("velocity: " + event.velocity));
+
+        if(event.type == "noteon" || event.type == "noteoff"){
+            data = {
+                channel: event.channel,
+                type: event.type,
+                timestamp: event.timestamp,
+                noteNumber: event.note.number,
+//                if(event.type == "noteon"){
+                velocity: event.velocity
+//                }
+            };
+        } else {
+            data = {
+                channel: event.channel,
+                type: event.type,
+                timestamp: event.timestamp
+            };
         }
 
-
-
+        jsonArray.push(data);
+        console.log("No. " + i + " pushed to jsonArray. Data: " + data);
     }
 
-//    $.post( "/midi/download", array)
-//      .done(function( data ) {
-//        alert( "File downloading " + data );
-//      });
+    for (var j = 0; j < jsonArray.length; j++){
+        console.log("No. " + (j+1) + ": " + JSON.stringify(jsonArray[j]));
+    }
+
+//    jsonArray = JSON.stringify(jsonArray);
+//    var test = {"channel" : "1", "type" : "noteoff", "timestamp" : "1234.123"}
+//    $.ajax({contentType: 'application/json'},  "/midi/download", JSON.stringify(array));
+
+    $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        url: '/midi/download',
+        data: JSON.stringify(jsonArray)
+    });
 }
 
 function trickOfTheLight(i){

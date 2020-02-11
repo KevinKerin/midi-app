@@ -4,9 +4,9 @@ public class JSMidiEvent {
 
     private Integer channel;
     private String type;
-    private Double velocity;
     private Double timestamp;
-    private int noteNumber;
+    private Double velocity;
+    private Integer noteNumber;
 
     public Integer getChannel() {
         return channel;
@@ -40,12 +40,22 @@ public class JSMidiEvent {
         this.timestamp = timestamp;
     }
 
-    public int getNoteNumber() {
+    public Integer getNoteNumber() {
         return noteNumber;
     }
 
-    public void setNoteNumber(int noteNumber) {
+    public void setNoteNumber(Integer noteNumber) {
         this.noteNumber = noteNumber;
     }
 
+    @Override
+    public String toString() {
+        return "JSMidiEvent{" +
+                "channel=" + channel +
+                ", type='" + type + '\'' +
+                ", timestamp=" + timestamp +
+                ", velocity=" + velocity +
+                ", noteNumber=" + noteNumber +
+                '}';
+    }
 }
