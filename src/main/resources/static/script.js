@@ -258,8 +258,20 @@ function downloadRecording(){
         type: "POST",
         contentType: "application/json",
         url: '/midi/download',
-        data: JSON.stringify(jsonArray)
+        data: JSON.stringify(jsonArray),
+        success: function(content){
+            window.MIDIDownload = document.createElement("a");
+            var date = new Date();
+            window.MIDIDownload.download = "MIDI-recording-" + date.getDate() + "-" + date.getMonth() + "-" + date.getFullYear() + " " + date.getHours() + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + date.getMilliseconds() + ".mid";
+            window.MIDIDownload.href = window.URL.createObjectURL(content.data);
+//            window.MIDIDownload.href = content.dataURI;
+//            window.MIDIDownload.innerHTML = "Download...";
+            MIDIDownload.click();
+        }
     });
+
+//    $('#midi-download-link').append(window.MIDIDownload);
+
 }
 
 function trickOfTheLight(i){

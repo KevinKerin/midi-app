@@ -64,6 +64,7 @@ public class MidiDownloadService {
 //****  note on - middle C  ****
             mm = new ShortMessage();
             mm.setMessage(0x90,0x3C,0x60);
+            mm.setMessage(0x90,60,0x60);
             me = new MidiEvent(mm,(long)1);
             t.add(me);
 
