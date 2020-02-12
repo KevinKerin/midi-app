@@ -230,9 +230,7 @@ function downloadRecording(){
                 type: event.type,
                 timestamp: event.timestamp,
                 noteNumber: event.note.number,
-//                if(event.type == "noteon"){
                 velocity: event.velocity
-//                }
             };
         } else {
             data = {
@@ -246,9 +244,9 @@ function downloadRecording(){
         console.log("No. " + i + " pushed to jsonArray. Data: " + data);
     }
 
-    for (var j = 0; j < jsonArray.length; j++){
-        console.log("No. " + (j+1) + ": " + JSON.stringify(jsonArray[j]));
-    }
+//    for (var j = 0; j < jsonArray.length; j++){
+        console.log(JSON.stringify(jsonArray));
+//    }
 
 //    jsonArray = JSON.stringify(jsonArray);
 //    var test = {"channel" : "1", "type" : "noteoff", "timestamp" : "1234.123"}
@@ -262,16 +260,14 @@ function downloadRecording(){
         success: function(content){
             window.MIDIDownload = document.createElement("a");
             var date = new Date();
-            window.MIDIDownload.download = "MIDI-recording-" + date.getDate() + "-" + date.getMonth() + "-" + date.getFullYear() + " " + date.getHours() + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + date.getMilliseconds() + ".mid";
-            window.MIDIDownload.href = window.URL.createObjectURL(content.data);
-//            window.MIDIDownload.href = content.dataURI;
-//            window.MIDIDownload.innerHTML = "Download...";
+            const mediaStream = new MediaStream();
+            const file = document.getElementById('a');
+            file.srcObject = mediaStream;
+            window.MIDIDownload.href = window.URL.createObjectURL(new Blob(content));
+            window.MIDIDownload.href = content.dataURI;
             MIDIDownload.click();
         }
     });
-
-//    $('#midi-download-link').append(window.MIDIDownload);
-
 }
 
 function trickOfTheLight(i){
