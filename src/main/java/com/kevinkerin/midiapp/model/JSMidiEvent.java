@@ -4,7 +4,7 @@ public class JSMidiEvent {
 
     private Integer channel;
     private String type;
-    private Double timestamp;
+    private double timestamp;
     private Double velocity;
     private Integer noteNumber;
 
@@ -32,11 +32,11 @@ public class JSMidiEvent {
         this.velocity = velocity;
     }
 
-    public Double getTimestamp() {
+    public double getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Double timestamp) {
+    public void setTimestamp(double timestamp) {
         this.timestamp = timestamp;
     }
 

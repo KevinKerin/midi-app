@@ -263,7 +263,7 @@ function downloadRecording(){
             const mediaStream = new MediaStream();
             const file = document.getElementById('a');
             file.srcObject = mediaStream;
-            window.MIDIDownload.href = window.URL.createObjectURL(new Blob(content));
+//            window.MIDIDownload.href = window.URL.createObjectURL(new Blob(content));
             window.MIDIDownload.href = content.dataURI;
             MIDIDownload.click();
         }
