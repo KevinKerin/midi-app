@@ -37,8 +37,8 @@ public class MidiDownloadService {
 
 //****  set tempo (meta event)  ****
             MetaMessage mt = new MetaMessage();
-            byte[] bt = {0x02, (byte)0x00, 0x00};
-            mt.setMessage(0x51 ,bt, 3);
+            byte[] bt = {0x02, (byte)0x00};
+            mt.setMessage(0x51 ,bt, 2);
             me = new MidiEvent(mt,(long)80);
             t.add(me);
 
@@ -71,38 +71,48 @@ public class MidiDownloadService {
 
                     int noteNumber = event.getNoteNumber();
                     mm = new ShortMessage();
-                    mm.setMessage(0x90,noteNumber,0x60);
-                    System.out.println("Short message noteon get channel: " + mm.getChannel());
-                    System.out.println("Short message noteon get command: " + mm.getCommand());
-                    System.out.println("Short message noteon get data1: " + mm.getData1());
-                    System.out.println("Short message noteon get data2: " + mm.getData2());
-                    System.out.println("Short message noteon get length: " + mm.getLength());
-                    System.out.println("Event timestamp: " + event.getTimestamp());
-                    me = new MidiEvent(mm,(long) resolution * (1/tempo) * 1000 * (long) event.getTimestamp());
-//                    me = new MidiEvent(mm,(long)event.getTimestamp());
-                    System.out.println("MidiEvent get message: " + me.getMessage());
-                    System.out.println("MidiEvent get tick: " + me.getTick());
+                    mm.setMessage(0x90, noteNumber,0x60);
+                    me = new MidiEvent(mm, (long) (event.getTimestamp() / (1000/60)));
                     t.add(me);
+//                    System.out.println("Short message noteon get channel: " + mm.getChannel());
+//                    System.out.println("Short message noteon get command: " + mm.getCommand());
+//                    System.out.println("Short message noteon get data1: " + mm.getData1());
+//                    System.out.println("Short message noteon get data2: " + mm.getData2());
+//                    System.out.println("Short message noteon get length: " + mm.getLength());
+//                    System.out.println("Event timestamp: " + event.getTimestamp());
+//                    System.out.println("Shouldn't be 0...: " + "Resolution: " + (long) resolution/tempo + ", 1/tempo" + (double) 1/tempo + ", getTimestamp:" + (long) event.getTimestamp());
+//                    System.out.println("Shouldn't be 0...: " + (long) resolution * (double) 1/tempo * 10 * event.getTimestamp());
+//                    me = new MidiEvent(mm,(long)((long) resolution * (double) 1/tempo * 10 * event.getTimestamp()));
+//                    me = new MidiEvent(mm,(long)event.getTimestamp());
+//                    System.out.println("MidiEvent get message: " + me.getMessage());
+//                    System.out.println("MidiEvent get tick: " + me.getTick());
 
                 } else if(event.getType().equals("noteoff")){
 
                     int noteNumber = event.getNoteNumber();
                     mm = new ShortMessage();
-                    mm.setMessage(0x80,noteNumber,0x40);
-                    System.out.println("Short message noteoff get channel: " + mm.getChannel());
-                    System.out.println("Short message noteoff get command: " + mm.getCommand());
-                    System.out.println("Short message noteoff get data1: " + mm.getData1());
-                    System.out.println("Short message noteoff get data2: " + mm.getData2());
-                    System.out.println("Short message noteoff get length: " + mm.getLength());
-                    System.out.println("Event timestamp: " + event.getTimestamp());
-                    me = new MidiEvent(mm,(long) resolution * (1/tempo) * 1000 * (long) event.getTimestamp());
-//                    me = new MidiEvent(mm,(long)event.getTimestamp());
-                    System.out.println("MidiEvent get message: " + me.getMessage());
-                    System.out.println("MidiEvent get tick: " + me.getTick());
+                    mm.setMessage(0x80, noteNumber,0x40);
+                    me = new MidiEvent(mm, (long) (event.getTimestamp() / (1000/60)));
                     t.add(me);
+//                    System.out.println("Short message noteoff get channel: " + mm.getChannel());
+//                    System.out.println("Short message noteoff get command: " + mm.getCommand());
+//                    System.out.println("Short message noteoff get data1: " + mm.getData1());
+//                    System.out.println("Short message noteoff get data2: " + mm.getData2());
+//                    System.out.println("Short message noteoff get length: " + mm.getLength());
+//                    System.out.println("Event timestamp: " + event.getTimestamp());
+//                    System.out.println("Shouldn't be 0...: " + "Resolution: " + (long) resolution + ", Tempo: " + (tempo) + ", 1/tempo" + (double) 1/tempo + ", getTimestamp:" + (long) event.getTimestamp());
+//                    System.out.println("Shouldn't be 0...: " + (long) resolution * (double) 1/tempo * 10 * event.getTimestamp());
+//                    me = new MidiEvent(mm,(long)((long) resolution * (double) 1/tempo * 10 * event.getTimestamp()));
+//                    me = new MidiEvent(mm,(long)event.getTimestamp());
+//                    System.out.println("MidiEvent get message: " + me.getMessage());
+//                    System.out.println("MidiEvent get tick: " + me.getTick());
 
                 } else if(event.getType().equals("controlchange")){
-
+                    int pedalValue = event.getPedalValue();
+                    mm = new ShortMessage();
+                    mm.setMessage(ShortMessage.CONTROL_CHANGE, 64, pedalValue);
+                    me = new MidiEvent(mm, (long) (event.getTimestamp() / (1000/60)));
+                    t.add(me);
                 } else {
 
                 }
@@ -115,10 +125,14 @@ public class MidiDownloadService {
 
 
 //****  set end of track (meta event) 19 ticks later  ****
+
+            double endOfSong = midiEventList.get(midiEventList.size()-1).getTimestamp();
+            System.out.println("Last timestamp = " + endOfSong);
+
             mt = new MetaMessage();
             byte[] bet = {}; // empty array
             mt.setMessage(0x2F,bet,0);
-            me = new MidiEvent(mt, (long)14000);
+            me = new MidiEvent(mt, (long) endOfSong / (1000/60));
             t.add(me);
 
             ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -127,8 +141,8 @@ public class MidiDownloadService {
             return output.toByteArray();
 
         } catch(Exception e) {
-            System.out.println("Exception caught " + e.toString());
-            System.out.println("midifile end ");
+//            System.out.println("Exception caught " + e.toString());
+//            System.out.println("midifile end ");
         } //catch
 
         return null;

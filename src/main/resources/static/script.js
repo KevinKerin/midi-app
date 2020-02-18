@@ -1,4 +1,4 @@
-const synth = new Tone.AMSynth().toMaster();
+var synth = new Tone.AMSynth().toMaster();
 console.log(synth);
 var array = [],
 input, output, stopRecording;
@@ -9,6 +9,8 @@ WebMidi.enable(function () {
     console.log(WebMidi.outputs);
     console.log(WebMidi.inputs.length);
     console.log(WebMidi.outputs.length);
+
+    synth.triggerAttackRelease("C4");
 
     input = WebMidi.inputs[0];
     output = WebMidi.outputs[0];
@@ -37,6 +39,39 @@ WebMidi.enable(function () {
     document.getElementById('download-recording').addEventListener('click', function(){
         downloadRecording();
     })
+
+    input.addListener('noteon', "all",
+        function (e) {
+            var note = e.note.name + e.note.octave;
+            var substring = "#";
+            if(note.indexOf(substring) !== -1){
+                var topId = document.getElementById(note + "-top");
+                topId.style.backgroundColor = "red";
+            } else {
+                var topId = document.getElementById(note + "-top");
+                var bottomId = document.getElementById(note + "-bottom");
+                topId.style.backgroundColor = "red";
+                bottomId.style.backgroundColor = "red";
+            }
+        }
+      );
+
+    input.addListener('noteoff', "all",
+        function (e) {
+            var note = e.note.name + e.note.octave;
+            var substring = "#";
+            if(note.indexOf(substring) !== -1){
+                var topId = document.getElementById(note + "-top");
+                topId.style.backgroundColor = "black";
+            } else {
+                var topId = document.getElementById(note + "-top");
+                var bottomId = document.getElementById(note + "-bottom");
+                topId.style.backgroundColor = "white";
+                bottomId.style.backgroundColor = "white";
+            }
+        })
+
+
 
     input.addListener('songselect', 'all',
         function(e){
@@ -79,19 +114,43 @@ function record(){
     stopRecording = false;
     array = [];
     input.addListener('noteon', "all",
-            function (e) {
-                if(!stopRecording){
-                    console.log(e.note.name + e.note.octave + " pressed at " + e.velocity);
-                    logMidiMessage(e);
-                    array.push(e);
-                    console.log("Array now contains " + array.length + " events.");
+        function (e) {
+            if(!stopRecording){
+                var note = e.note.name + e.note.octave;
+                var substring = "#";
+                console.log(note + " pressed at " + e.velocity);
+                if(note.indexOf(substring) !== -1){
+                    var topId = document.getElementById(note + "-top");
+                    topId.style.backgroundColor = "red";
+                } else {
+                    var topId = document.getElementById(note + "-top");
+                    var bottomId = document.getElementById(note + "-bottom");
+                    topId.style.backgroundColor = "red";
+                    bottomId.style.backgroundColor = "red";
                 }
+                synth.triggerAttack(note);
+                logMidiMessage(e);
+                array.push(e);
+                console.log("Array now contains " + array.length + " events.");
             }
-          );
+        }
+      );
 
     input.addListener('noteoff', "all",
             function (e) {
                 if(!stopRecording){
+                    var note = e.note.name + e.note.octave;
+                    var substring = "#";
+                    console.log(note + " depressed at " + e.velocity);
+                    if(note.indexOf(substring) !== -1){
+                        var topId = document.getElementById(note + "-top");
+                        topId.style.backgroundColor = "black";
+                    } else {
+                        var topId = document.getElementById(note + "-top");
+                        var bottomId = document.getElementById(note + "-bottom");
+                        topId.style.backgroundColor = "white";
+                        bottomId.style.backgroundColor = "white";
+                    }
                     synth.triggerRelease();
                     array.push(e);
                     console.log("Note Off detected. Array now contains " + array.length + " events");
@@ -109,6 +168,10 @@ function record(){
 
 }
 
+function keyListener(){
+
+}
+
 function changeTune(amountOfKeys){
     for (var i = 0; i < array.length; i++){
         if(array[i].type == "noteon" || array[i].type == "noteoff"){
@@ -118,6 +181,7 @@ function changeTune(amountOfKeys){
             }
         }
     }
+
     console.log("Changing tune by " + amountOfKeys + " keys");
     var newArray = [];
     for (var i = 0; i < array.length; i++){
@@ -220,7 +284,7 @@ function noteOff(note){
 function downloadRecording(){
 
     var jsonArray = [];
-
+    var firstNoteTime = array[0].timestamp;
     for (var i = 0; i < array.length; i++){
         var event = array[i];
 
@@ -228,7 +292,7 @@ function downloadRecording(){
             data = {
                 channel: event.channel,
                 type: event.type,
-                timestamp: event.timestamp,
+                timestamp: event.timestamp - firstNoteTime,
                 noteNumber: event.note.number,
                 velocity: event.velocity
             };
@@ -236,7 +300,8 @@ function downloadRecording(){
             data = {
                 channel: event.channel,
                 type: event.type,
-                timestamp: event.timestamp
+                timestamp: event.timestamp - firstNoteTime,
+                pedalValue: event.value
             };
         }
 

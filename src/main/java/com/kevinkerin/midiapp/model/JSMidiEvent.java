@@ -7,6 +7,15 @@ public class JSMidiEvent {
     private double timestamp;
     private Double velocity;
     private Integer noteNumber;
+    private Integer pedalValue;
+
+    public Integer getPedalValue() {
+        return pedalValue;
+    }
+
+    public void setPedalValue(Integer pedalValue) {
+        this.pedalValue = pedalValue;
+    }
 
     public Integer getChannel() {
         return channel;
@@ -56,6 +65,7 @@ public class JSMidiEvent {
                 ", timestamp=" + timestamp +
                 ", velocity=" + velocity +
                 ", noteNumber=" + noteNumber +
+                ", pedalValue=" + pedalValue +
                 '}';
     }
 }

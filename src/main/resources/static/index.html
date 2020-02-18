@@ -44,6 +44,66 @@
             position: relative;
             width: 90%;
         }
+
+        #onscreen-piano {
+            position: relative;
+            width: 90%;
+            height: 300px;
+            border: 1px solid black;
+        }
+
+        #top-keys{
+            position: relative;
+            width: 100%;
+        }
+
+        #bottom-keys{
+            position: relative;
+            width: 100%;
+            clear: left;
+        }
+
+        .key {
+
+        }
+
+        .white-key {
+
+        }
+
+        .top-white-key-chunky{
+            width: 9px;
+            border-left: 1px solid black;
+            border-right:  1px solid black;
+        }
+
+        .top-white-key-skinny{
+            width: 6px;
+            border-left: 1px solid black;
+            border-right:  1px solid black;
+        }
+
+        .black-key {
+            background-color: black;
+            width: 5px;
+            border-right: 1px solid black;
+        }
+
+        .top-key {
+            float: left;
+            height: 50px;
+            border-top: 1px solid black;
+        }
+
+        .bottom-key {
+            float:left;
+            width: 12px;
+            height: 50px;
+            border-left: 1px solid black;
+            border-right:  1px solid black;
+            border-bottom: 1px solid black;
+        }
+
     </style>
 </head>
 <body>
@@ -121,6 +181,184 @@
             <button id="playback">Play on device</button>
             <button id="login">Login</button>
             <button id="download-recording">Download Recording</button>
+
+            <div id="onscreen-piano">
+                <div id="top-keys">
+                    <div id="C1-top" class="c-top top-key top-white-key-chunky"></div>
+                    <div id="C#1-top" class="c#-top top-key black-key"></div>
+                    <div id="D1-top" class="d-top top-key top-white-key-skinny"></div>
+                    <div id="D#1-top" class="d#-top top-key black-key"></div>
+                    <div id="E1-top" class="e-top top-key top-white-key-chunky"></div>
+                    <div id="F1-top" class="f-top top-key top-white-key-chunky"></div>
+                    <div id="F#1-top" class="f#-top top-key black-key"></div>
+                    <div id="G1-top" class="g-top top-key top-white-key-skinny"></div>
+                    <div id="G#1-top" class="g#-top top-key black-key"></div>
+                    <div id="A1-top" class="a-top top-key top-white-key-skinny"></div>
+                    <div id="A#1-top" class="a#-top top-key black-key"></div>
+                    <div id="B1-top" class="b-top top-key top-white-key-chunky"></div>
+
+                    <div id="C2-top" class="c-top top-key top-white-key-chunky"></div>
+                    <div id="C#2-top" class="c#-top top-key black-key"></div>
+                    <div id="D2-top" class="d-top top-key top-white-key-skinny"></div>
+                    <div id="D#2-top" class="d#-top top-key black-key"></div>
+                    <div id="E2-top" class="e-top top-key top-white-key-chunky"></div>
+                    <div id="F2-top" class="f-top top-key top-white-key-chunky"></div>
+                    <div id="F#2-top" class="f#-top top-key black-key"></div>
+                    <div id="G2-top" class="g-top top-key top-white-key-skinny"></div>
+                    <div id="G#2-top" class="g#-top top-key black-key"></div>
+                    <div id="A2-top" class="a-top top-key top-white-key-skinny"></div>
+                    <div id="A#2-top" class="a#-top top-key black-key"></div>
+                    <div id="B2-top" class="b-top top-key top-white-key-chunky"></div>
+
+                    <div id="C3-top" class="c-top top-key top-white-key-chunky"></div>
+                    <div id="C#3-top" class="c#-top top-key black-key"></div>
+                    <div id="D3-top" class="d-top top-key top-white-key-skinny"></div>
+                    <div id="D#3-top" class="d#-top top-key black-key"></div>
+                    <div id="E3-top" class="e-top top-key top-white-key-chunky"></div>
+                    <div id="F3-top" class="f-top top-key top-white-key-chunky"></div>
+                    <div id="F#3-top" class="f#-top top-key black-key"></div>
+                    <div id="G3-top" class="g-top top-key top-white-key-skinny"></div>
+                    <div id="G#3-top" class="g#-top top-key black-key"></div>
+                    <div id="A3-top" class="a-top top-key top-white-key-skinny"></div>
+                    <div id="A#3-top" class="a#-top top-key black-key"></div>
+                    <div id="B3-top" class="b-top top-key top-white-key-chunky"></div>
+
+                    <div id="C4-top" class="c-top top-key top-white-key-chunky"></div>
+                    <div id="C#4-top" class="c#-top top-key black-key"></div>
+                    <div id="D4-top" class="d-top top-key top-white-key-skinny"></div>
+                    <div id="D#4-top" class="d#-top top-key black-key"></div>
+                    <div id="E4-top" class="e-top top-key top-white-key-chunky"></div>
+                    <div id="F4-top" class="f-top top-key top-white-key-chunky"></div>
+                    <div id="F#4-top" class="f#-top top-key black-key"></div>
+                    <div id="G4-top" class="g-top top-key top-white-key-skinny"></div>
+                    <div id="G#4-top" class="g#-top top-key black-key"></div>
+                    <div id="A4-top" class="a-top top-key top-white-key-skinny"></div>
+                    <div id="A#4-top" class="a#-top top-key black-key"></div>
+                    <div id="B4-top" class="b-top top-key top-white-key-chunky"></div>
+
+                    <div id="C5-top" class="c-top top-key top-white-key-chunky"></div>
+                    <div id="C#5-top" class="c#-top top-key black-key"></div>
+                    <div id="D5-top" class="d-top top-key top-white-key-skinny"></div>
+                    <div id="D#5-top" class="d#-top top-key black-key"></div>
+                    <div id="E5-top" class="e-top top-key top-white-key-chunky"></div>
+                    <div id="F5-top" class="f-top top-key top-white-key-chunky"></div>
+                    <div id="F#5-top" class="f#-top top-key black-key"></div>
+                    <div id="G5-top" class="g-top top-key top-white-key-skinny"></div>
+                    <div id="G#5-top" class="g#-top top-key black-key"></div>
+                    <div id="A5-top" class="a-top top-key top-white-key-skinny"></div>
+                    <div id="A#5-top" class="a#-top top-key black-key"></div>
+                    <div id="B5-top" class="b-top top-key top-white-key-chunky"></div>
+
+                    <div id="C6-top" class="c-top top-key top-white-key-chunky"></div>
+                    <div id="C#6-top" class="c#-top top-key black-key"></div>
+                    <div id="D6-top" class="d-top top-key top-white-key-skinny"></div>
+                    <div id="D#6-top" class="d#-top top-key black-key"></div>
+                    <div id="E6-top" class="e-top top-key top-white-key-chunky"></div>
+                    <div id="F6-top" class="f-top top-key top-white-key-chunky"></div>
+                    <div id="F#6-top" class="f#-top top-key black-key"></div>
+                    <div id="G6-top" class="g-top top-key top-white-key-skinny"></div>
+                    <div id="G#6-top" class="g#-top top-key black-key"></div>
+                    <div id="A6-top" class="a-top top-key top-white-key-skinny"></div>
+                    <div id="A#6-top" class="a#-top top-key black-key"></div>
+                    <div id="B6-top" class="b-top top-key top-white-key-chunky"></div>
+
+                    <div id="C7-top" class="c-top top-key top-white-key-chunky"></div>
+                    <div id="C#7-top" class="c#-top top-key black-key"></div>
+                    <div id="D7-top" class="d-top top-key top-white-key-skinny"></div>
+                    <div id="D#7-top" class="d#-top top-key black-key"></div>
+                    <div id="E7-top" class="e-top top-key top-white-key-chunky"></div>
+                    <div id="F7-top" class="f-top top-key top-white-key-chunky"></div>
+                    <div id="F#7-top" class="f#-top top-key black-key"></div>
+                    <div id="G7-top" class="g-top top-key top-white-key-skinny"></div>
+                    <div id="G#7-top" class="g#-top top-key black-key"></div>
+                    <div id="A7-top" class="a-top top-key top-white-key-skinny"></div>
+                    <div id="A#7-top" class="a#-top top-key black-key"></div>
+                    <div id="B7-top" class="b-top top-key top-white-key-chunky"></div>
+
+                    <div id="C8-top" class="c-top top-key top-white-key-chunky"></div>
+                    <div id="C#8-top" class="c#-top top-key black-key"></div>
+                    <div id="D8-top" class="d-top top-key top-white-key-skinny"></div>
+                    <div id="D#8-top" class="d#-top top-key black-key"></div>
+                    <div id="E8-top" class="e-top top-key top-white-key-chunky"></div>
+                    <div id="F8-top" class="f-top top-key top-white-key-chunky"></div>
+                    <div id="F#8-top" class="f#-top top-key black-key"></div>
+                    <div id="G8-top" class="g-top top-key top-white-key-skinny"></div>
+                    <div id="G#8-top" class="g#-top top-key black-key"></div>
+                    <div id="A8-top" class="a-top top-key top-white-key-skinny"></div>
+                    <div id="A#8-top" class="a#-top top-key black-key"></div>
+                    <div id="B8-top" class="b-top top-key top-white-key-chunky"></div>
+
+
+                </div>
+                <div id="bottom-keys">
+                    <div id="C1-bottom" class="c-bottom bottom-key white-key"></div>
+                    <div id="D1-bottom" class="d-bottom bottom-key white-key"></div>
+                    <div id="E1-bottom" class="e-bottom bottom-key white-key"></div>
+                    <div id="F1-bottom" class="f-bottom bottom-key white-key"></div>
+                    <div id="G1-bottom" class="g-bottom bottom-key white-key"></div>
+                    <div id="A1-bottom" class="a-bottom bottom-key white-key"></div>
+                    <div id="B1-bottom" class="b-bottom bottom-key white-key"></div>
+
+                    <div id="C2-bottom" class="c-bottom bottom-key white-key"></div>
+                    <div id="D2-bottom" class="d-bottom bottom-key white-key"></div>
+                    <div id="E2-bottom" class="e-bottom bottom-key white-key"></div>
+                    <div id="F2-bottom" class="f-bottom bottom-key white-key"></div>
+                    <div id="G2-bottom" class="g-bottom bottom-key white-key"></div>
+                    <div id="A2-bottom" class="a-bottom bottom-key white-key"></div>
+                    <div id="B2-bottom" class="b-bottom bottom-key white-key"></div>
+
+                    <div id="C3-bottom" class="c-bottom bottom-key white-key"></div>
+                    <div id="D3-bottom" class="d-bottom bottom-key white-key"></div>
+                    <div id="E3-bottom" class="e-bottom bottom-key white-key"></div>
+                    <div id="F3-bottom" class="f-bottom bottom-key white-key"></div>
+                    <div id="G3-bottom" class="g-bottom bottom-key white-key"></div>
+                    <div id="A3-bottom" class="a-bottom bottom-key white-key"></div>
+                    <div id="B3-bottom" class="b-bottom bottom-key white-key"></div>
+
+                    <div id="C4-bottom" class="c-bottom bottom-key white-key"></div>
+                    <div id="D4-bottom" class="d-bottom bottom-key white-key"></div>
+                    <div id="E4-bottom" class="e-bottom bottom-key white-key"></div>
+                    <div id="F4-bottom" class="f-bottom bottom-key white-key"></div>
+                    <div id="G4-bottom" class="g-bottom bottom-key white-key"></div>
+                    <div id="A4-bottom" class="a-bottom bottom-key white-key"></div>
+                    <div id="B4-bottom" class="b-bottom bottom-key white-key"></div>
+
+                    <div id="C5-bottom" class="c-bottom bottom-key white-key"></div>
+                    <div id="D5-bottom" class="d-bottom bottom-key white-key"></div>
+                    <div id="E5-bottom" class="e-bottom bottom-key white-key"></div>
+                    <div id="F5-bottom" class="f-bottom bottom-key white-key"></div>
+                    <div id="G5-bottom" class="g-bottom bottom-key white-key"></div>
+                    <div id="A5-bottom" class="a-bottom bottom-key white-key"></div>
+                    <div id="B5-bottom" class="b-bottom bottom-key white-key"></div>
+
+                    <div id="C6-bottom" class="c-bottom bottom-key white-key"></div>
+                    <div id="D6-bottom" class="d-bottom bottom-key white-key"></div>
+                    <div id="E6-bottom" class="e-bottom bottom-key white-key"></div>
+                    <div id="F6-bottom" class="f-bottom bottom-key white-key"></div>
+                    <div id="G6-bottom" class="g-bottom bottom-key white-key"></div>
+                    <div id="A6-bottom" class="a-bottom bottom-key white-key"></div>
+                    <div id="B6-bottom" class="b-bottom bottom-key white-key"></div>
+
+                    <div id="C7-bottom" class="c-bottom bottom-key white-key"></div>
+                    <div id="D7-bottom" class="d-bottom bottom-key white-key"></div>
+                    <div id="E7-bottom" class="e-bottom bottom-key white-key"></div>
+                    <div id="F7-bottom" class="f-bottom bottom-key white-key"></div>
+                    <div id="G7-bottom" class="g-bottom bottom-key white-key"></div>
+                    <div id="A7-bottom" class="a-bottom bottom-key white-key"></div>
+                    <div id="B7-bottom" class="b-bottom bottom-key white-key"></div>
+
+                    <div id="C8-bottom" class="c-bottom bottom-key white-key"></div>
+                    <div id="D8-bottom" class="d-bottom bottom-key white-key"></div>
+                    <div id="E8-bottom" class="e-bottom bottom-key white-key"></div>
+                    <div id="F8-bottom" class="f-bottom bottom-key white-key"></div>
+                    <div id="G8-bottom" class="g-bottom bottom-key white-key"></div>
+                    <div id="A8-bottom" class="a-bottom bottom-key white-key"></div>
+                    <div id="B8-bottom" class="b-bottom bottom-key white-key"></div>
+                </div>
+
+
+
+            </div>
 
             <!--<button id="record-layer2">Start Recording Layer 2</button>-->
             <!--<button id="stop-record-layer2" onclick="stopRecordingLayer2 = true">Stop Recording Layer 2</button>-->
