@@ -1,7 +1,10 @@
 var synth = new Tone.AMSynth().toMaster();
 console.log(synth);
-var array = [],
-input, output, stopRecording;
+var recordingArray = [],
+input, output, isRecording = false;;
+var icon = document.getElementById("icon");
+var notesList = [];
+createNoteList(notesList);
 
 WebMidi.enable(function () {
 
@@ -10,68 +13,39 @@ WebMidi.enable(function () {
     console.log(WebMidi.inputs.length);
     console.log(WebMidi.outputs.length);
 
-    synth.triggerAttackRelease("C4");
-
     input = WebMidi.inputs[0];
     output = WebMidi.outputs[0];
 
-    document.getElementById("connected-device").innerHTML = "Input: " + input.name + "; Output: " + output.name;
+    document.getElementById("connected-input").innerHTML = input.name;
+    document.getElementById("connected-output").innerHTML = output.name;
 
     console.log(input);
     console.log(output);
 
-    document.getElementById('show-log').addEventListener('click', showLog);
+//    document.getElementById('show-log').addEventListener('click', showLog);
     document.getElementById('playback').addEventListener('click', playback);
-    document.getElementById('record').addEventListener('click', record);
+    document.getElementById('start-recording').addEventListener('click', startRecording);
+    document.getElementById('stop-recording').addEventListener('click', stopRecording);
+    document.getElementById('clear-recording').addEventListener('click', clearRecording);
     document.getElementById('login').addEventListener('click', login);
-    document.getElementById('octave-down').addEventListener('click', function(){
-    changeTune(-12);
-    });
-    document.getElementById('octave-up').addEventListener('click', function(){
-    changeTune(12);
-    });
-    document.getElementById('transpose-down').addEventListener('click', function(){
-        changeTune(-1);
-        });
-        document.getElementById('transpose-up').addEventListener('click', function(){
-        changeTune(1);
-        });
-    document.getElementById('download-recording').addEventListener('click', function(){
-        downloadRecording();
-    })
+    document.getElementById('octave-down').addEventListener('click', function() {changeTune(-12)});
+    document.getElementById('octave-up').addEventListener('click', function() {changeTune(12)});
+    document.getElementById('transpose-down').addEventListener('click', function() {changeTune(-1)});
+    document.getElementById('transpose-up').addEventListener('click', function() {changeTune(1)});
+    document.getElementById('speed-up').addEventListener('click', function() {changeSpeed(1.1)});
+    document.getElementById('speed-down').addEventListener('click', function() {changeSpeed(0.9)});
+    document.getElementById('harden').addEventListener('click', function() {changeVelocity(1.1)});
+    document.getElementById('soften').addEventListener('click', function() {changeVelocity(0.9)});
+    document.getElementById('download-recording').addEventListener('click', function() {downloadRecording()})
 
-    input.addListener('noteon', "all",
-        function (e) {
-            var note = e.note.name + e.note.octave;
-            var substring = "#";
-            if(note.indexOf(substring) !== -1){
-                var topId = document.getElementById(note + "-top");
-                topId.style.backgroundColor = "red";
-            } else {
-                var topId = document.getElementById(note + "-top");
-                var bottomId = document.getElementById(note + "-bottom");
-                topId.style.backgroundColor = "red";
-                bottomId.style.backgroundColor = "red";
-            }
+    input.addListener('noteon', "all", function(e) {noteOn(e, recordingArray, isRecording)});
+    input.addListener('noteoff', "all", function(e) {noteOff (e, recordingArray, isRecording)});
+    input.addListener('controlchange', "all", function (e) {
+        if(isRecording){
+            console.log("Received 'controlchange' message.", e);
+                recordingArray.push(e);
         }
-      );
-
-    input.addListener('noteoff', "all",
-        function (e) {
-            var note = e.note.name + e.note.octave;
-            var substring = "#";
-            if(note.indexOf(substring) !== -1){
-                var topId = document.getElementById(note + "-top");
-                topId.style.backgroundColor = "black";
-            } else {
-                var topId = document.getElementById(note + "-top");
-                var bottomId = document.getElementById(note + "-bottom");
-                topId.style.backgroundColor = "white";
-                bottomId.style.backgroundColor = "white";
-            }
-        })
-
-
+    });
 
     input.addListener('songselect', 'all',
         function(e){
@@ -89,9 +63,24 @@ WebMidi.enable(function () {
 
 });
 
+function createNoteList(notesList){
+    var noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+    for (var i = -1; i < 10; i++){
+        for (var j = 0; j < noteNames.length; j++){
+            notesList.push({
+                "noteName" : noteNames[j],
+                "octave" : i
+            });
+        }
+    }
+    for (var i = 0; i <= 3; i++){
+        notesList.pop();
+    }
+}
+
 function showLog(){
-    for (var i = 0; i < array.length; i ++){
-        var event = array[i];
+    for (var i = 0; i < recordingArray.length; i ++){
+        var event = recordingArray[i];
         if(event.type == "noteon"){
             console.log(event.note.name + event.note.octave + ", " + event.type + " @ velocity " + event.velocity + ", time: " + event.timestamp);
         } else if (event.type == "noteoff"){
@@ -109,131 +98,268 @@ function showLog(){
     }
 }
 
-function record(){
+function startRecording(){
+    alert("Recording will begin when you start playing");
     console.log("Recording starting...");
-    stopRecording = false;
-    array = [];
-    input.addListener('noteon', "all",
-        function (e) {
-            if(!stopRecording){
-                var note = e.note.name + e.note.octave;
-                var substring = "#";
-                console.log(note + " pressed at " + e.velocity);
-                if(note.indexOf(substring) !== -1){
-                    var topId = document.getElementById(note + "-top");
-                    topId.style.backgroundColor = "red";
-                } else {
-                    var topId = document.getElementById(note + "-top");
-                    var bottomId = document.getElementById(note + "-bottom");
-                    topId.style.backgroundColor = "red";
-                    bottomId.style.backgroundColor = "red";
-                }
-                synth.triggerAttack(note);
-                logMidiMessage(e);
-                array.push(e);
-                console.log("Array now contains " + array.length + " events.");
-            }
-        }
-      );
-
-    input.addListener('noteoff', "all",
-            function (e) {
-                if(!stopRecording){
-                    var note = e.note.name + e.note.octave;
-                    var substring = "#";
-                    console.log(note + " depressed at " + e.velocity);
-                    if(note.indexOf(substring) !== -1){
-                        var topId = document.getElementById(note + "-top");
-                        topId.style.backgroundColor = "black";
-                    } else {
-                        var topId = document.getElementById(note + "-top");
-                        var bottomId = document.getElementById(note + "-bottom");
-                        topId.style.backgroundColor = "white";
-                        bottomId.style.backgroundColor = "white";
-                    }
-                    synth.triggerRelease();
-                    array.push(e);
-                    console.log("Note Off detected. Array now contains " + array.length + " events");
-                }
-            })
-
-    input.addListener('controlchange', "all",
-                function (e) {
-                    if(!stopRecording){
-                        console.log("Received 'controlchange' message.", e);
-                            array.push(e);
-                    }
-                }
-            );
-
+    isRecording = true;
+    recordingArray = [];
 }
 
-function keyListener(){
+function stopRecording(){
+    if(isRecording){
+        isRecording = false;
+        console.log("Recording stopped");
+        icon.style.visibility = "hidden";
+        alert("Recording stopped. Click 'Play' to listen, or use buttons to edit");
+    } else {
+        alert("Device is not being recorded. Click 'Start Recording to begin, or 'Play' to listen");
+    }
+}
 
+function noteOn(event, recordingArray, isRecording){
+    console.log("noteOn function called");
+    if(isRecording){
+        icon.style.visibility = "visible";
+        synth.triggerAttack(note);
+        logMidiMessage(event);
+        recordingArray.push(event);
+        console.log("Array now contains " + recordingArray.length + " events.");
+    }
+    var note = event.note.name + event.note.octave;
+    var substring = "#";
+    console.log(note + " pressed at " + event.velocity);
+    if(note.indexOf(substring) !== -1){
+        var topId = document.getElementById(note + "-top");
+        topId.style.backgroundColor = "red";
+    } else {
+        var topId = document.getElementById(note + "-top");
+        var bottomId = document.getElementById(note + "-bottom");
+        topId.style.backgroundColor = "red";
+        bottomId.style.backgroundColor = "red";
+    }
+}
+
+function clearRecording(){
+    if(recordingArray.length == 0){
+        alert("Recording is already empty");
+    } else {
+        recordingArray = [];
+        alert("Recording cleared");
+    }
+}
+
+function noteOff(event, recordingArray, isRecording){
+    console.log("noteOff function called");
+    var note = event.note.name + event.note.octave;
+    var substring = "#";
+    console.log(note + " stopped");
+    if(note.indexOf(substring) !== -1){
+        var topId = document.getElementById(note + "-top");
+        topId.style.backgroundColor = "black";
+    } else {
+        var topId = document.getElementById(note + "-top");
+        var bottomId = document.getElementById(note + "-bottom");
+        topId.style.backgroundColor = "white";
+        bottomId.style.backgroundColor = "white";
+    }
+    if(isRecording){
+        synth.triggerRelease();
+        recordingArray.push(event);
+        console.log("Note Off detected. Array now contains " + recordingArray.length + " events");
+    }
 }
 
 function changeTune(amountOfKeys){
-    for (var i = 0; i < array.length; i++){
-        if(array[i].type == "noteon" || array[i].type == "noteoff"){
-            var note = array[i].note.number;
-            if(note + amountOfKeys > 128 || note + amountOfKeys < 0){
-                return;
+    if(recordingArray.length > 0){
+        for (var i = 0; i < recordingArray.length; i++){
+                if(recordingArray[i].type == "noteon" || recordingArray[i].type == "noteoff"){
+                    var note = recordingArray[i].note.number;
+                    if(note + amountOfKeys > 128 || note + amountOfKeys < 0){
+                        console.log("Max/min note range reached");
+                        return;
+                    }
+                }
+            }
+
+        console.log("Changing tune by " + amountOfKeys + " keys");
+        for (var i = 0; i < recordingArray.length; i++){
+            var currentEvent = recordingArray[i];
+            if(currentEvent.type == "noteon" || currentEvent.type == "noteoff"){
+                    console.log(currentEvent.note.number + " is original note number...");
+                    currentEvent.note.number += amountOfKeys;
+                    currentEvent.note.name = notesList[currentEvent.note.number].noteName;
+                    currentEvent.note.octave = notesList[currentEvent.note.number].octave;
+                    console.log(currentEvent.note.number + " is new note number.");
+                    console.log(currentEvent.note.name + currentEvent.note.octave + " is new note.");
+                    console.log(currentEvent);
             }
         }
-    }
-
-    console.log("Changing tune by " + amountOfKeys + " keys");
-    var newArray = [];
-    for (var i = 0; i < array.length; i++){
-        if(array[i].type == "noteon" || array[i].type == "noteoff"){
-                console.log(array[i].note.number + " is original note number...");
-                array[i].note.number += amountOfKeys;
-                console.log(array[i].note.number + " is new note number.");
-        }
+        console.log("Transpose change by " + amountOfKeys + " keys complete.");
+        alert("Transpose change by " + amountOfKeys + " keys complete.");
+    } else {
+        alert("Record some music before attempting to edit");
     }
 }
 
-function octaveUp(){
-    console.log("Moving octave down 1 step");
-    for (var i = 0; i < array.length; i++){
-        var currentOctave = array[i].note.octave;
-        array[i].note.octave = currentOctave + 1;
+function changeSpeed(num){
+    if(recordingArray.length > 0){
+        console.log("Changing speed");
+            for (var i = 0; i < recordingArray.length; i++){
+                recordingArray[i].timestamp = recordingArray[i].timestamp / num;
+            }
+        console.log("Speed change by " + num + "x complete.");
+        alert("Speed change by " + num + "x complete.");
+    } else {
+        alert("Record some music before attempting to edit");
     }
 }
 
-function octaveDown(){
-    console.log("Moving octave up 1 step");
-    for (var i = 0; i < array.length; i++){
-        var currentOctave = array[i].note.octave;
-        array[i].note.octave = currentOctave - 1;
+function changeVelocity(num){
+    if(recordingArray.length > 0){
+        for (var i = 0; i < recordingArray.length; i++){
+            if(recordingArray[i].type == "noteon"){
+                var currentEvent = recordingArray[i];
+                if(currentEvent.velocity * num > 128 || currentEvent.velocity * num < 0){
+                    console.log("Max/min velocity range reached");
+                    return;
+                }
+            }
+         }
+
+         console.log("Changing velocity by " + num + "x");
+         for (var i = 0; i < recordingArray.length; i++){
+             var currentEvent = recordingArray[i];
+             if(currentEvent.type == "noteon"){
+                     console.log("Old velocity: " + currentEvent.velocity);
+                     currentEvent.velocity *= num;
+                     console.log("New velocity: " + currentEvent.velocity);
+             }
+
+         }
+         console.log("Velocity change by " + num + "x complete.");
+         alert("Velocity change by " + num + "x complete.");
+    } else {
+        alert("Record some music before attempting to edit");
     }
 }
+
 
 function playback(){
-    if(!stopRecording){
-        stopRecording = true;
+    if(isRecording){
+        isRecording = false;
     }
-    console.log("Playback starting...");
-    var firstNoteTime = array[0].timestamp;
-    for (var i = 0; i < array.length; i ++){
-            var event = array[i];
-            if(event.type == "noteon"){
-                console.log("Note: " + event.note.number + ", velocity: " + event.velocity + ", timestamp: " + (event.timestamp - firstNoteTime));
-                output.playNote(event.note.number, event.channel, {velocity: event.velocity, time: "+" + (event.timestamp - firstNoteTime)});
-            } else if(event.type == "noteoff"){
-                console.log("Note: " + event.note.number + ", timestamp: " + (event.timestamp - firstNoteTime));
-                output.stopNote(event.note.number, event.channel, {time: "+" + (event.timestamp - firstNoteTime)});
-            } else if(event.type = "controlchange"){
-                if(event.value < 64){
-                    output.sendControlChange("holdpedal", 0, event.channel, {time: "+" + (event.timestamp - firstNoteTime)});
+    if(recordingArray.length > 0){
+        console.log("Playback starting...");
+        var firstNoteTime = recordingArray[0].timestamp;
+        for (var i = 0; i < recordingArray.length; i ++){
+                var event = recordingArray[i];
+                var playbackTime = event.timestamp - firstNoteTime;
+                if(event.type == "noteon"){
+                    console.log("Note: " + event.note.number + ", velocity: " + event.velocity + ", timestamp: " + playbackTime);
+                    output.playNote(event.note.number, event.channel, {velocity: event.velocity, time: "+" + playbackTime});
+//                    var currentNote = document.getElementById(event.note.name + event.note.octave + "-top");
+//                    console.log(currentNote);
+//                    console.log("Event timestamp: " + event.timestamp);
+                    preKeyColourChange(event, i, playbackTime);
+                } else if(event.type == "noteoff"){
+                    console.log("Note: " + event.note.number + ", timestamp: " + playbackTime);
+                    output.stopNote(event.note.number, event.channel, {time: "+" + playbackTime});
+//                    depressedKeyColourChange(event.note.name + event.note.octave);
+//                    document.getElementById(event.note.name + event.note.octave + "-top").style.backgroundColor = "black";
+//                    noteOff(event, recordingArray, isRecording);
+                } else if(event.type = "controlchange"){
+                    if(event.value < 64){
+                        output.sendControlChange("holdpedal", 0, event.channel, {time: "+" + playbackTime});
+                    } else {
+                        output.sendControlChange("holdpedal", 127, event.channel, {time: "+" + playbackTime});
+                    }
                 } else {
-                    output.sendControlChange("holdpedal", 127, event.channel, {time: "+" + (event.timestamp - firstNoteTime)});
+                    console.log("Unrecognised event");
                 }
-            } else {
-                console.log("Unrecognised event");
+            }
+    } else {
+        alert("Nothing on file to play");
+    }
+
+
+}
+
+function preKeyColourChange(event, index, playbackTime){
+    var timestamp = event.timestamp;
+    console.log("Setting timeout for note " + event.note.number + " for " + timestamp + "ms, playback time " + playbackTime);
+    setTimeout(function(){
+    keyColourChange(event, index)}, playbackTime);
+}
+
+function keyColourChange(event, index){
+    var timestamp = event.timestamp;
+    var noteNumber = event.note.number;
+    var noteName = event.note.name + event.note.octave;
+    var lengthOfNote;
+    var whiteKey;
+    var topKey = document.getElementById(noteName + "-top");
+    var bottomKey;
+    topKey.style.backgroundColor = "red";
+    var substring = "#";
+    if(noteName.indexOf(substring) == -1){
+        bottomKey = document.getElementById(noteName + "-bottom");
+        bottomKey.style.backgroundColor = "red";
+        whiteKey = true;
+    }
+    console.log("colour change");
+    var matchFound = false;
+    while(!matchFound){
+        var currentEvent = recordingArray[index];
+        if(currentEvent.type == "noteoff"){
+            if(currentEvent.note.number == noteNumber){
+                matchFound = true;
+                lengthOfNote = currentEvent.timestamp - event.timestamp;
             }
         }
+        index++;
+    }
+    if(!matchFound){
+        console.log("Matching pair not found");
+    }
+
+//    for(var i = index; i < recordingArray.length; i++){
+//        var matchingPairSearch = recordingArray[i];
+//        console.log(matchingPairSearch);
+//        if(matchingPairSearch.type == "noteoff"){
+//            if(matchingPairSearch.note.number == noteNumber){
+//                lengthOfNote = matchingPairSearch.timestamp - event.timestamp;
+//            }
+//        }
+//    }
+//    if (lengthOfNote == null){
+//        console.log("Matching pair not found");
+//    }
+    console.log("Note " + noteName + "started at " + event.timestamp + ", finished at " + currentEvent.timestamp + ", length of note : " + lengthOfNote);
+//    setTimeout(lengthOfNote);
+    setTimeout(function()
+        { if(whiteKey){
+               topKey.style.backgroundColor = "white";
+               bottomKey.style.backgroundColor = "white";
+               console.log("Changed back to white");
+           } else {
+               topKey.style.backgroundColor = "black";
+               console.log("Changed back to black");
+           } }, lengthOfNote);
+
 }
+
+//function depressedKeyColourChange(key){
+//    var substring = "#";
+//    if(key.indexOf(substring) == -1){
+//        document.getElementById(key + "-top").style.backgroundColor = "white";
+//        document.getElementById(key + "-bottom").style.backgroundColor = "white";
+//    } else {
+//        document.getElementById(key + "-top").style.backgroundColor = "black";
+//    }
+//    console.log("colour change back");
+//}
+
+
 
 function logMidiMessage(message) {
             if ((typeof event === 'undefined') || (event === null)) {
@@ -271,22 +397,22 @@ function getMIDIMessage(message) {
     }
 }
 
-function noteOn(note, velocity){
-    console.log("Note pressed: " + note + " at " + velocity + " velocity");
-
-}
-
-function noteOff(note){
-    console.log("Note stopped: " + note);
-
-}
+//function noteOn(note, velocity){
+//    console.log("Note pressed: " + note + " at " + velocity + " velocity");
+//
+//}
+//
+//function noteOff(note){
+//    console.log("Note stopped: " + note);
+//
+//}
 
 function downloadRecording(){
 
     var jsonArray = [];
-    var firstNoteTime = array[0].timestamp;
-    for (var i = 0; i < array.length; i++){
-        var event = array[i];
+    var firstNoteTime = recordingArray[0].timestamp;
+    for (var i = 0; i < recordingArray.length; i++){
+        var event = recordingArray[i];
 
         if(event.type == "noteon" || event.type == "noteoff"){
             data = {
