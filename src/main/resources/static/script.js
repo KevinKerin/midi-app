@@ -5,6 +5,20 @@ input, output, isRecording = false;;
 var icon = document.getElementById("icon");
 var notesList = [];
 createNoteList(notesList);
+var onscreenKeyboardAudio = true;
+//
+//setupConnection();
+//document.getElementById('midi-connect').addEventListener('click', deviceConnection());
+
+
+var selectedPreset=_tone_0000_Aspirin_sf2_file;
+var AudioContextFunc = window.AudioContext || window.webkitAudioContext;
+var audioContext = new AudioContextFunc();
+var player=new WebAudioFontPlayer();
+player.adjustPreset(audioContext,selectedPreset);
+function startWaveTableNow(pitch) {
+    var audioBufferSourceNode = player.queueWaveTable(audioContext, audioContext.destination, selectedPreset, audioContext.currentTime + 0, pitch, 1.0);
+}
 
 WebMidi.enable(function () {
 
@@ -13,17 +27,19 @@ WebMidi.enable(function () {
     console.log(WebMidi.inputs.length);
     console.log(WebMidi.outputs.length);
 
+
+
     input = WebMidi.inputs[0];
     output = WebMidi.outputs[0];
 
-    document.getElementById("connected-input").innerHTML = input.name;
-    document.getElementById("connected-output").innerHTML = output.name;
+
 
     console.log(input);
     console.log(output);
 
 //    document.getElementById('show-log').addEventListener('click', showLog);
     document.getElementById('playback').addEventListener('click', playback);
+    document.getElementById('onscreen-keyboard-playback').addEventListener('click', onscreenPlayback);
     document.getElementById('start-recording').addEventListener('click', startRecording);
     document.getElementById('stop-recording').addEventListener('click', stopRecording);
     document.getElementById('clear-recording').addEventListener('click', clearRecording);
@@ -36,6 +52,7 @@ WebMidi.enable(function () {
     document.getElementById('speed-down').addEventListener('click', function() {changeSpeed(0.9)});
     document.getElementById('harden').addEventListener('click', function() {changeVelocity(1.1)});
     document.getElementById('soften').addEventListener('click', function() {changeVelocity(0.9)});
+    document.getElementById('onscreen-keyboard-audio-toggle').addEventListener('click', onscreenKeyboardAudioToggle);
     document.getElementById('download-recording').addEventListener('click', function() {downloadRecording()})
 
     input.addListener('noteon', "all", function(e) {noteOn(e, recordingArray, isRecording)});
@@ -78,6 +95,35 @@ function createNoteList(notesList){
     }
 }
 
+function setupConnection(){
+    var inputSelect = document.getElementById("input-connections");
+    var outputSelect = document.getElementById("output-connections");
+    for (var i = 0; i < WebMidi.inputs.length; i++){
+        var option = document.createElement("option");
+        var optionText = WebMidi.inputs[i]._midiInput.manufacturer + " " + WebMidi.inputs[i]._midiInput.name;
+        option.text = optionText;
+        inputSelect.add(option);
+    }
+    for (var i = 0; i < WebMidi.outputs.length; i++){
+        var option = document.createElement("option");
+        var optionText = WebMidi.outputs[i]._midiOutput.manufacturer + " " + WebMidi.outputs[i]._midiOutput.name;
+        option.text = optionText;
+        outputSelect.add(option);
+    }
+}
+
+function deviceConnection(){
+    input = WebMidi.inputs[document.getElementById("input-connections").selectedIndex];
+    output = WebMidi.outputs[document.getElementById("output-connections").selectedIndex];
+
+    displayConnections();
+}
+
+function displayConnections(){
+    document.getElementById("connected-input").innerHTML = input.name;
+    document.getElementById("connected-output").innerHTML = output.name;
+}
+
 function showLog(){
     for (var i = 0; i < recordingArray.length; i ++){
         var event = recordingArray[i];
@@ -116,11 +162,20 @@ function stopRecording(){
     }
 }
 
+function onscreenKeyboardAudioToggle(){
+    if(onscreenKeyboardAudio){
+        document.getElementById('onscreen-keyboard-audio-toggle').value = 'On Screen Keyboard Audio: Off';
+        onscreenKeyboardAudio = false;
+    } else {
+        document.getElementById('onscreen-keyboard-audio-toggle').value = 'On Screen Keyboard Audio: On';
+        onscreenKeyboardAudio = true;
+    }
+}
+
 function noteOn(event, recordingArray, isRecording){
     console.log("noteOn function called");
     if(isRecording){
         icon.style.visibility = "visible";
-        synth.triggerAttack(note);
         logMidiMessage(event);
         recordingArray.push(event);
         console.log("Array now contains " + recordingArray.length + " events.");
@@ -128,6 +183,10 @@ function noteOn(event, recordingArray, isRecording){
     var note = event.note.name + event.note.octave;
     var substring = "#";
     console.log(note + " pressed at " + event.velocity);
+    if(onscreenKeyboardAudio){
+        console.log("Onscreen Keyboard Audio turned on");
+        startWaveTableNow(event.note.number);
+    }
     if(note.indexOf(substring) !== -1){
         var topId = document.getElementById(note + "-top");
         topId.style.backgroundColor = "red";
@@ -163,7 +222,6 @@ function noteOff(event, recordingArray, isRecording){
         bottomId.style.backgroundColor = "white";
     }
     if(isRecording){
-        synth.triggerRelease();
         recordingArray.push(event);
         console.log("Note Off detected. Array now contains " + recordingArray.length + " events");
     }
@@ -243,6 +301,25 @@ function changeVelocity(num){
     }
 }
 
+function onscreenPlayback(){
+    if(isRecording){
+            isRecording = false;
+    }
+    if(!onscreenKeyboardAudio){
+        onscreenKeyboardAudioToggle();
+    }
+    if(recordingArray.length > 0){
+        console.log("On Screen Playback starting...");
+        for (var i = 0; i < recordingArray.length; i++){
+            var currentEvent = recordingArray[i];
+            if(currentEvent.type == "noteon"){
+                startWaveTableNow(currentEvent.note.number);
+            }
+        }
+    } else {
+        console.log("Nothing on file to play");
+    }
+}
 
 function playback(){
     if(isRecording){
@@ -251,7 +328,7 @@ function playback(){
     if(recordingArray.length > 0){
         console.log("Playback starting...");
         var firstNoteTime = recordingArray[0].timestamp;
-        for (var i = 0; i < recordingArray.length; i ++){
+        for (var i = 0; i < recordingArray.length; i++){
                 var event = recordingArray[i];
                 var playbackTime = event.timestamp - firstNoteTime;
                 if(event.type == "noteon"){
