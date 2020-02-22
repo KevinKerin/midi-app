@@ -29,8 +29,8 @@ WebMidi.enable(function () {
 
 
 
-    input = WebMidi.inputs[0];
-    output = WebMidi.outputs[0];
+    input = WebMidi.getInputById('1570184708');
+    output = WebMidi.getOutputById('284624427');
 
 
 
@@ -38,8 +38,8 @@ WebMidi.enable(function () {
     console.log(output);
 
 //    document.getElementById('show-log').addEventListener('click', showLog);
-    document.getElementById('playback').addEventListener('click', playback);
-    document.getElementById('onscreen-keyboard-playback').addEventListener('click', onscreenPlayback);
+    document.getElementById('playback').addEventListener('click', function() {playback("device")});
+    document.getElementById('onscreen-keyboard-playback').addEventListener('click', function() {playback("onscreen-keyboard")});
     document.getElementById('start-recording').addEventListener('click', startRecording);
     document.getElementById('stop-recording').addEventListener('click', stopRecording);
     document.getElementById('clear-recording').addEventListener('click', clearRecording);
@@ -53,7 +53,7 @@ WebMidi.enable(function () {
     document.getElementById('harden').addEventListener('click', function() {changeVelocity(1.1)});
     document.getElementById('soften').addEventListener('click', function() {changeVelocity(0.9)});
     document.getElementById('onscreen-keyboard-audio-toggle').addEventListener('click', onscreenKeyboardAudioToggle);
-    document.getElementById('download-recording').addEventListener('click', function() {downloadRecording()})
+    document.getElementById('download-recording').addEventListener('click', function() {downloadRecording()});
 
     input.addListener('noteon', "all", function(e) {noteOn(e, recordingArray, isRecording)});
     input.addListener('noteoff', "all", function(e) {noteOff (e, recordingArray, isRecording)});
@@ -184,7 +184,6 @@ function noteOn(event, recordingArray, isRecording){
     var substring = "#";
     console.log(note + " pressed at " + event.velocity);
     if(onscreenKeyboardAudio){
-        console.log("Onscreen Keyboard Audio turned on");
         startWaveTableNow(event.note.number);
     }
     if(note.indexOf(substring) !== -1){
@@ -301,27 +300,34 @@ function changeVelocity(num){
     }
 }
 
-function onscreenPlayback(){
-    if(isRecording){
-            isRecording = false;
-    }
-    if(!onscreenKeyboardAudio){
-        onscreenKeyboardAudioToggle();
-    }
-    if(recordingArray.length > 0){
-        console.log("On Screen Playback starting...");
-        for (var i = 0; i < recordingArray.length; i++){
-            var currentEvent = recordingArray[i];
-            if(currentEvent.type == "noteon"){
-                startWaveTableNow(currentEvent.note.number);
-            }
-        }
-    } else {
-        console.log("Nothing on file to play");
+//function onscreenPlayback(){
+//    if(isRecording){
+//            isRecording = false;
+//    }
+//    if(!onscreenKeyboardAudio){
+//        onscreenKeyboardAudioToggle();
+//    }
+//    if(recordingArray.length > 0){
+//        console.log("On Screen Playback starting...");
+//        for (var i = 0; i < recordingArray.length; i++){
+//            var currentEvent = recordingArray[i];
+//            if(currentEvent.type == "noteon"){
+//
+//            }
+//        }
+//    } else {
+//        console.log("Nothing on file to play");
+//    }
+//}
+
+function playOnscreenKey(event, playbackTime){
+    if (onscreenKeyboardAudio){
+        setTimeout(function(){
+            startWaveTableNow(event.note.number)}, playbackTime);
     }
 }
 
-function playback(){
+function playback(playbackType){
     if(isRecording){
         isRecording = false;
     }
@@ -332,8 +338,15 @@ function playback(){
                 var event = recordingArray[i];
                 var playbackTime = event.timestamp - firstNoteTime;
                 if(event.type == "noteon"){
-                    console.log("Note: " + event.note.number + ", velocity: " + event.velocity + ", timestamp: " + playbackTime);
-                    output.playNote(event.note.number, event.channel, {velocity: event.velocity, time: "+" + playbackTime});
+                    if(playbackType == "onscreen-keyboard"){
+                        if(!onscreenKeyboardAudio){
+                            onscreenKeyboardAudioToggle();
+                        }
+                        playOnscreenKey(event, playbackTime);
+                    } else if (playbackType == "device"){
+                        console.log("Note: " + event.note.number + ", velocity: " + event.velocity + ", timestamp: " + playbackTime);
+                        output.playNote(event.note.number, event.channel, {velocity: event.velocity, time: "+" + playbackTime});
+                    }
 //                    var currentNote = document.getElementById(event.note.name + event.note.octave + "-top");
 //                    console.log(currentNote);
 //                    console.log("Event timestamp: " + event.timestamp);
@@ -536,6 +549,9 @@ function downloadRecording(){
             MIDIDownload.click();
         }
     });
+
+
+
 }
 
 function trickOfTheLight(i){
