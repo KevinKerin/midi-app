@@ -30,4 +30,16 @@ public class MidiFileController {
 
         return midiDownloadService.downloadMidiFile(list);
     }
+
+    @PostMapping(value = "/downloadBase64", produces = "text/plain")
+    public String downloadMidiFileBase64(@RequestBody List<JSMidiEvent> list){
+
+        for (JSMidiEvent jsme : list){
+            System.out.println(jsme.toString());
+        }
+
+        return midiDownloadService.downloadMidiFileBase64(list);
+    }
+
+
 }

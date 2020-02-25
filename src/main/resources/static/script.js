@@ -1,7 +1,7 @@
 var synth = new Tone.AMSynth().toMaster();
 console.log(synth);
-var recordingArray = [],
-input, output, isRecording = false;;
+var recordingArray = [], keyMap, keyboardMap,
+input, output, isRecording = false;
 var icon = document.getElementById("icon");
 var notesList = [];
 createNoteList(notesList);
@@ -22,15 +22,19 @@ function startWaveTableNow(pitch) {
 
 WebMidi.enable(function () {
 
+    setKeyMap();
+    console.log(notesList);
+
     console.log(WebMidi.inputs);
     console.log(WebMidi.outputs);
     console.log(WebMidi.inputs.length);
     console.log(WebMidi.outputs.length);
 
+    input = WebMidi.inputs[0];
+    output = WebMidi.outputs[0];
 
-
-    input = WebMidi.getInputById('1570184708');
-    output = WebMidi.getOutputById('284624427');
+//    input = WebMidi.getInputById('1570184708');
+//    output = WebMidi.getOutputById('284624427');
 
 
 
@@ -54,7 +58,7 @@ WebMidi.enable(function () {
     document.getElementById('soften').addEventListener('click', function() {changeVelocity(0.9)});
     document.getElementById('onscreen-keyboard-audio-toggle').addEventListener('click', onscreenKeyboardAudioToggle);
     document.getElementById('download-recording').addEventListener('click', function() {downloadRecording()});
-
+    document.addEventListener('keypress', keyboardListener);
     input.addListener('noteon', "all", function(e) {noteOn(e, recordingArray, isRecording)});
     input.addListener('noteoff', "all", function(e) {noteOff (e, recordingArray, isRecording)});
     input.addListener('controlchange', "all", function (e) {
@@ -82,7 +86,7 @@ WebMidi.enable(function () {
 
 function createNoteList(notesList){
     var noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-    for (var i = -1; i < 10; i++){
+    for (var i = 0; i < 11; i++){
         for (var j = 0; j < noteNames.length; j++){
             notesList.push({
                 "noteName" : noteNames[j],
@@ -195,6 +199,54 @@ function noteOn(event, recordingArray, isRecording){
         topId.style.backgroundColor = "red";
         bottomId.style.backgroundColor = "red";
     }
+}
+
+function setKeyMap(){
+    keyMap = new Map();
+    keyboardMap = ['KeyZ', 'KeyS', 'KeyX', 'KeyD', 'KeyC', 'KeyV', 'KeyG', 'KeyB', 'KeyH', 'KeyN', 'KeyJ',
+    'KeyM', 'KeyQ', 'Digit2', 'KeyW', 'Digit3', 'KeyE', 'KeyR', 'Digit5', 'KeyT', 'Digit6', 'KeyY', 'Digit7',
+    'KeyU', 'KeyI', 'Digit9', 'KeyO', 'Digit0', 'KeyP', 'BracketLeft', 'Equal', 'BracketRight'];
+    for (var i = 48; i < 80; i++){
+        keyMap.set(keyboardMap[i-48], i);
+    }
+}
+
+function keyboardListener(key){
+    try{
+        var note = keyMap.get(key.code);
+        startWaveTableNow(note);
+        keyColourChange(note);
+    } catch (error){
+    }
+}
+
+function keyColourChange(note){
+    var note = notesList[note];
+    var noteName = note.noteName + note.octave;
+    var substring = '#';
+    console.log(noteName);
+    if(noteName.indexOf(substring) !== -1){
+        var topId = document.getElementById(noteName + "-top");
+        topId.style.backgroundColor = "red";
+        console.log("Changed to red colour");
+        setTimeout(function(){
+            topId.style.backgroundColor = "black";
+        }, 300);
+    } else {
+        var topId = document.getElementById(noteName + "-top");
+        var bottomId = document.getElementById(noteName + "-bottom");
+        topId.style.backgroundColor = "red";
+        bottomId.style.backgroundColor = "red";
+        console.log("Changed to red colour");
+        setTimeout(function(){
+            topId.style.backgroundColor = "white";
+            bottomId.style.backgroundColor = "white";
+        }, 300);
+    }
+}
+
+function clickColourChange(id){
+
 }
 
 function clearRecording(){
@@ -350,7 +402,7 @@ function playback(playbackType){
 //                    var currentNote = document.getElementById(event.note.name + event.note.octave + "-top");
 //                    console.log(currentNote);
 //                    console.log("Event timestamp: " + event.timestamp);
-                    preKeyColourChange(event, i, playbackTime);
+                    prePlaybackKeyColourChange(event, i, playbackTime);
                 } else if(event.type == "noteoff"){
                     console.log("Note: " + event.note.number + ", timestamp: " + playbackTime);
                     output.stopNote(event.note.number, event.channel, {time: "+" + playbackTime});
@@ -374,14 +426,14 @@ function playback(playbackType){
 
 }
 
-function preKeyColourChange(event, index, playbackTime){
+function prePlaybackKeyColourChange(event, index, playbackTime){
     var timestamp = event.timestamp;
     console.log("Setting timeout for note " + event.note.number + " for " + timestamp + "ms, playback time " + playbackTime);
     setTimeout(function(){
-    keyColourChange(event, index)}, playbackTime);
+    playbackKeyColourChange(event, index)}, playbackTime);
 }
 
-function keyColourChange(event, index){
+function playbackKeyColourChange(event, index){
     var timestamp = event.timestamp;
     var noteNumber = event.note.number;
     var noteName = event.note.name + event.note.octave;
@@ -411,21 +463,7 @@ function keyColourChange(event, index){
     if(!matchFound){
         console.log("Matching pair not found");
     }
-
-//    for(var i = index; i < recordingArray.length; i++){
-//        var matchingPairSearch = recordingArray[i];
-//        console.log(matchingPairSearch);
-//        if(matchingPairSearch.type == "noteoff"){
-//            if(matchingPairSearch.note.number == noteNumber){
-//                lengthOfNote = matchingPairSearch.timestamp - event.timestamp;
-//            }
-//        }
-//    }
-//    if (lengthOfNote == null){
-//        console.log("Matching pair not found");
-//    }
     console.log("Note " + noteName + "started at " + event.timestamp + ", finished at " + currentEvent.timestamp + ", length of note : " + lengthOfNote);
-//    setTimeout(lengthOfNote);
     setTimeout(function()
         { if(whiteKey){
                topKey.style.backgroundColor = "white";
@@ -437,19 +475,6 @@ function keyColourChange(event, index){
            } }, lengthOfNote);
 
 }
-
-//function depressedKeyColourChange(key){
-//    var substring = "#";
-//    if(key.indexOf(substring) == -1){
-//        document.getElementById(key + "-top").style.backgroundColor = "white";
-//        document.getElementById(key + "-bottom").style.backgroundColor = "white";
-//    } else {
-//        document.getElementById(key + "-top").style.backgroundColor = "black";
-//    }
-//    console.log("colour change back");
-//}
-
-
 
 function logMidiMessage(message) {
             if ((typeof event === 'undefined') || (event === null)) {
@@ -497,6 +522,7 @@ function getMIDIMessage(message) {
 //
 //}
 
+
 function downloadRecording(){
 
     var jsonArray = [];
@@ -533,24 +559,37 @@ function downloadRecording(){
 //    var test = {"channel" : "1", "type" : "noteoff", "timestamp" : "1234.123"}
 //    $.ajax({contentType: 'application/json'},  "/midi/download", JSON.stringify(array));
 
+//    $.ajax({
+//        type: "POST",
+//        contentType: "application/json",
+//        url: '/midi/download',
+//        data: JSON.stringify(jsonArray),
+//        success: function(content){
+//            window.MIDIDownload = document.createElement("a");
+//            var date = new Date();
+//            const mediaStream = new MediaStream();
+//            const file = document.getElementById('a');
+//            file.srcObject = mediaStream;
+////            window.MIDIDownload.href = window.URL.createObjectURL(new Blob(content));
+//            window.MIDIDownload.href = content.dataURI;
+//            MIDIDownload.click();
+//        }
+//    });
+
     $.ajax({
         type: "POST",
         contentType: "application/json",
-        url: '/midi/download',
+        url: "/midi/downloadBase64",
         data: JSON.stringify(jsonArray),
         success: function(content){
             window.MIDIDownload = document.createElement("a");
             var date = new Date();
-            const mediaStream = new MediaStream();
-            const file = document.getElementById('a');
-            file.srcObject = mediaStream;
-//            window.MIDIDownload.href = window.URL.createObjectURL(new Blob(content));
-            window.MIDIDownload.href = content.dataURI;
-            MIDIDownload.click();
+            window.MIDIDownload.download = "midi-recording-" + date.getDate() + "-" + date.getMonth() + "-" + date.getFullYear() + " " + date.getHours() + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + date.getMilliseconds() + ".mid";
+            window.MIDIDownload.href = "data:audio/midi;base64," + content;
+            window.MIDIDownload.innerHTML = "Download MIDI File";
+            document.getElementById('buttons').appendChild(window.MIDIDownload);
         }
-    });
-
-
+    })
 
 }
 

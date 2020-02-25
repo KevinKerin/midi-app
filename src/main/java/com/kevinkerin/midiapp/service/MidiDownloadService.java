@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import javax.sound.midi.*;
 import java.io.ByteArrayOutputStream;
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -72,7 +73,7 @@ public class MidiDownloadService {
                     int noteNumber = event.getNoteNumber();
                     mm = new ShortMessage();
                     mm.setMessage(0x90, noteNumber,0x60);
-                    me = new MidiEvent(mm, (long) (event.getTimestamp() / (1000/60)));
+                    me = new MidiEvent(mm, (long) (event.getTimestamp() / (1000/50)));
                     t.add(me);
 //                    System.out.println("Short message noteon get channel: " + mm.getChannel());
 //                    System.out.println("Short message noteon get command: " + mm.getCommand());
@@ -92,7 +93,7 @@ public class MidiDownloadService {
                     int noteNumber = event.getNoteNumber();
                     mm = new ShortMessage();
                     mm.setMessage(0x80, noteNumber,0x40);
-                    me = new MidiEvent(mm, (long) (event.getTimestamp() / (1000/60)));
+                    me = new MidiEvent(mm, (long) (event.getTimestamp() / (1000/50)));
                     t.add(me);
 //                    System.out.println("Short message noteoff get channel: " + mm.getChannel());
 //                    System.out.println("Short message noteoff get command: " + mm.getCommand());
@@ -111,7 +112,7 @@ public class MidiDownloadService {
                     int pedalValue = event.getPedalValue();
                     mm = new ShortMessage();
                     mm.setMessage(ShortMessage.CONTROL_CHANGE, 64, pedalValue);
-                    me = new MidiEvent(mm, (long) (event.getTimestamp() / (1000/60)));
+                    me = new MidiEvent(mm, (long) (event.getTimestamp() / (1000/50)));
                     t.add(me);
                 } else {
 
@@ -149,4 +150,11 @@ public class MidiDownloadService {
 
     }
 
-} //midifile
+    public String downloadMidiFileBase64(List<JSMidiEvent> midiEventList){
+        byte[] result = downloadMidiFile(midiEventList);
+
+        byte[] encodedResult = Base64.getEncoder().encode(result);
+        return new String(encodedResult);
+    }
+
+}
