@@ -30,8 +30,8 @@ WebMidi.enable(function () {
     console.log(WebMidi.inputs.length);
     console.log(WebMidi.outputs.length);
 
-    input = WebMidi.inputs[0];
-    output = WebMidi.outputs[0];
+//    input = WebMidi.inputs[0];
+//    output = WebMidi.outputs[0];
 
 //    input = WebMidi.getInputById('1570184708');
 //    output = WebMidi.getOutputById('284624427');
@@ -212,6 +212,7 @@ function setKeyMap(){
 }
 
 function keyboardListener(key){
+    console.log("Keyboard listener");
     try{
         var note = keyMap.get(key.code);
         startWaveTableNow(note);
