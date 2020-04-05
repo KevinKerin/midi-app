@@ -6,10 +6,6 @@ var icon = document.getElementById("icon");
 var notesList = [];
 createNoteList(notesList);
 var onscreenKeyboardAudio = true;
-//
-//setupConnection();
-//document.getElementById('midi-connect').addEventListener('click', deviceConnection());
-
 
 var selectedPreset=_tone_0000_Aspirin_sf2_file;
 var AudioContextFunc = window.AudioContext || window.webkitAudioContext;
@@ -30,8 +26,8 @@ WebMidi.enable(function () {
     console.log(WebMidi.inputs.length);
     console.log(WebMidi.outputs.length);
 
-//    input = WebMidi.inputs[0];
-//    output = WebMidi.outputs[0];
+   input = WebMidi.inputs[0];
+   output = WebMidi.outputs[0];
 
 //    input = WebMidi.getInputById('1570184708');
 //    output = WebMidi.getOutputById('284624427');
@@ -164,6 +160,7 @@ function stopRecording(){
     } else {
         alert("Device is not being recorded. Click 'Start Recording to begin, or 'Play' to listen");
     }
+    console.log(recordingArray);
 }
 
 function onscreenKeyboardAudioToggle(){
@@ -178,6 +175,7 @@ function onscreenKeyboardAudioToggle(){
 
 function noteOn(event, recordingArray, isRecording){
     console.log("noteOn function called");
+    console.log(event);
     if(isRecording){
         icon.style.visibility = "visible";
         logMidiMessage(event);
@@ -221,6 +219,113 @@ function keyboardListener(key){
     }
 }
 
+function playScale(number, type){
+    var majorSteps = [2, 2, 1, 2, 2, 2, 1];
+    var minorSteps = [2, 1, 2, 2, 1, 2, 2];
+    var timestamp = 0;
+    recordingArray = [];
+    for (i = 0; i<8; i++){
+        recordingArray.push({
+            "type" : "noteon",
+            "timestamp" : timestamp,
+            "channel" : 1,
+            "note" : {
+                "number" : number,
+                "name" : notesList[number].noteName,
+                "octave" : notesList[number].octave
+            },
+            "velocity" : 50
+        });
+        timestamp += 500;
+        recordingArray.push({
+            "type" : "noteoff",
+            "timestamp" : timestamp,
+            "channel" : 1,
+            "note" : {
+                "number" : number,
+                "name" : notesList[number].noteName,
+                "octave" : notesList[number].octave
+            },
+            "velocity" : 0
+        });
+        if(type === "major"){
+            number += majorSteps[i];
+        } else if (type === "minor"){
+            number += minorSteps[i];
+        } else {
+            console.log("Error in reaching next note of scale");
+        }
+    }
+    console.log(recordingArray);
+    playback("onscreen-keyboard");
+}
+
+function playChord(number, type){
+    recordingArray = [];
+    var timestamp = 0;
+    var chordArray;
+    if(type === "major"){
+        chordArray = [number, number+4, number+7];
+    } else if (type === "minor"){
+        chordArray = [number, number+3, number+7]
+    } else {
+        console.log("Error in creating chord array");
+    }
+    for (var i=0; i<3; i++){
+        var currentNote = chordArray[i];
+        recordingArray.push({
+            "type" : "noteon",
+            "timestamp" : timestamp,
+            "channel" : 1,
+            "note" : {
+                "number" : currentNote,
+                "name" : notesList[currentNote].noteName,
+                "octave" : notesList[currentNote].octave
+            },
+            "velocity" : 50
+        });
+        timestamp += 500;
+        recordingArray.push({
+            "type" : "noteoff",
+            "timestamp" : timestamp,
+            "channel" : 1,
+            "note" : {
+                "number" : currentNote,
+                "name" : notesList[currentNote].noteName,
+                "octave" : notesList[currentNote].octave
+            },
+            "velocity" : 0
+        });
+    }
+    for (var i=0; i<3; i++){
+        var currentNote = chordArray[i];
+        recordingArray.push({
+            "type" : "noteon",
+            "timestamp" : 2000,
+            "channel" : 1,
+            "note" : {
+                "number" : currentNote,
+                "name" : notesList[currentNote].noteName,
+                "octave" : notesList[currentNote].octave
+            },
+            "velocity" : 50
+        });
+        recordingArray.push({
+            "type" : "noteoff",
+            "timestamp" : 3500,
+            "channel" : 1,
+            "note" : {
+                "number" : currentNote,
+                "name" : notesList[currentNote].noteName,
+                "octave" : notesList[currentNote].octave
+            },
+            "velocity" : 0
+        });
+    }
+    console.log(recordingArray);
+    playback("onscreen-keyboard");
+}
+
 function keyColourChange(note){
     var note = notesList[note];
     var noteName = note.noteName + note.octave;
@@ -261,6 +366,7 @@ function clearRecording(){
 
 function noteOff(event, recordingArray, isRecording){
     console.log("noteOff function called");
+    console.log(event);
     var note = event.note.name + event.note.octave;
     var substring = "#";
     console.log(note + " stopped");
