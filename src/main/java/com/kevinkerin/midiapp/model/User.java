@@ -1,23 +1,17 @@
 package com.kevinkerin.midiapp.model;
 
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
+@Table(name = "user")
 public class User {
 
-    @Id @GeneratedValue private long id;
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String username;
-    private String password;
-    public static String TABLE_NAME;
-
-    public User() {
-    }
+    @Id @GeneratedValue(strategy = GenerationType.AUTO) @Column(name="userId", unique = true) private int userId;
+    @Column(name = "firstName", nullable = false) private String firstName;
+    @Column(name = "lastName", nullable = false) private String lastName;
+    @Column(name = "email", nullable = false) private String email;
+    @Column(name = "username", nullable = false) private String username;
+    @Column(name = "password", nullable = false) private String password;
 
     public String getFirstName() {
         return firstName;

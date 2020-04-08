@@ -1,12 +1,15 @@
 var synth = new Tone.AMSynth().toMaster();
-console.log(synth);
-var recordingArray = [], keyMap, keyboardMap,
-input, output, isRecording = false;
+var recordingArray = [];
+var reversedRecordingArray = [];
+var keyMap;
+var keyboardMap;
+var input;
+var output;
+var isRecording = false;
 var icon = document.getElementById("icon");
 var notesList = [];
 createNoteList(notesList);
 var onscreenKeyboardAudio = true;
-
 var selectedPreset=_tone_0000_Aspirin_sf2_file;
 var AudioContextFunc = window.AudioContext || window.webkitAudioContext;
 var audioContext = new AudioContextFunc();
@@ -52,6 +55,7 @@ WebMidi.enable(function () {
     document.getElementById('speed-down').addEventListener('click', function() {changeSpeed(0.9)});
     document.getElementById('harden').addEventListener('click', function() {changeVelocity(1.1)});
     document.getElementById('soften').addEventListener('click', function() {changeVelocity(0.9)});
+    document.getElementById('reverse-recording').addEventListener('click', function() {reverseRecording()});
     document.getElementById('onscreen-keyboard-audio-toggle').addEventListener('click', onscreenKeyboardAudioToggle);
     document.getElementById('download-recording').addEventListener('click', function() {downloadRecording()});
     document.addEventListener('keypress', keyboardListener);
@@ -234,7 +238,7 @@ function playScale(number, type){
                 "name" : notesList[number].noteName,
                 "octave" : notesList[number].octave
             },
-            "velocity" : 50
+            "velocity" : .5
         });
         timestamp += 500;
         recordingArray.push({
@@ -282,7 +286,7 @@ function playChord(number, type){
                 "name" : notesList[currentNote].noteName,
                 "octave" : notesList[currentNote].octave
             },
-            "velocity" : 50
+            "velocity" : .5
         });
         timestamp += 500;
         recordingArray.push({
@@ -308,7 +312,7 @@ function playChord(number, type){
                 "name" : notesList[currentNote].noteName,
                 "octave" : notesList[currentNote].octave
             },
-            "velocity" : 50
+            "velocity" : .5
         });
         recordingArray.push({
             "type" : "noteoff",
@@ -487,6 +491,8 @@ function playOnscreenKey(event, playbackTime){
 }
 
 function playback(playbackType){
+    console.log(recordingArray);
+    var pianoConnected = (input != null);
     if(isRecording){
         isRecording = false;
     }
@@ -502,7 +508,7 @@ function playback(playbackType){
                             onscreenKeyboardAudioToggle();
                         }
                         playOnscreenKey(event, playbackTime);
-                    } else if (playbackType == "device"){
+                    } else if (playbackType == "device" && pianoConnected){
                         console.log("Note: " + event.note.number + ", velocity: " + event.velocity + ", timestamp: " + playbackTime);
                         output.playNote(event.note.number, event.channel, {velocity: event.velocity, time: "+" + playbackTime});
                     }
@@ -512,11 +518,13 @@ function playback(playbackType){
                     prePlaybackKeyColourChange(event, i, playbackTime);
                 } else if(event.type == "noteoff"){
                     console.log("Note: " + event.note.number + ", timestamp: " + playbackTime);
-                    output.stopNote(event.note.number, event.channel, {time: "+" + playbackTime});
+                    if(pianoConnected){
+                        output.stopNote(event.note.number, event.channel, {time: "+" + playbackTime});
+                    }
 //                    depressedKeyColourChange(event.note.name + event.note.octave);
 //                    document.getElementById(event.note.name + event.note.octave + "-top").style.backgroundColor = "black";
 //                    noteOff(event, recordingArray, isRecording);
-                } else if(event.type = "controlchange"){
+                } else if(event.type = "controlchange" && pianoConnected){
                     if(event.value < 64){
                         output.sendControlChange("holdpedal", 0, event.channel, {time: "+" + playbackTime});
                     } else {
@@ -583,6 +591,54 @@ function playbackKeyColourChange(event, index){
 
 }
 
+function reverseRecording(){
+    reversedRecordingArray = [];
+    if(recordingArray.length === 0){
+        alert("Cannot reverse an empty recording.");
+        return;
+    }
+    for (var i = recordingArray.length-1; i >= 0; i--){
+        console.log(recordingArray[i]);
+        reversedRecordingArray.push(recordingArray[i]);
+    }
+    console.log(reversedRecordingArray);
+    // console.log("Beginning timestamp changes etc.")
+
+    var lastTimestamp = reversedRecordingArray[0].timestamp;
+    console.log("Largest timestamp is " + lastTimestamp);
+
+    for (var i=0; i < reversedRecordingArray.length; i++){
+    //    loop through reversed array and change the timestamp i.e. 4000 becomes 0, 1000 becomes 3000, 2500 becomes 1500
+    //    1 becomes 3999
+    //    change noteon to noteoff and vice versa
+        var currentEvent = reversedRecordingArray[i];
+        currentEvent.timestamp = (currentEvent.timestamp * -1) + lastTimestamp;
+
+        if(currentEvent.type === "noteon"){
+            currentEvent.type = "noteoff";
+            currentEvent.velocity = 0;
+        } else if (currentEvent.type === "noteoff"){
+            currentEvent.type = "noteon";
+            currentEvent.velocity = 0.5;
+        } else if (currentEvent.controller.name === "holdpedal"){
+            if(currentEvent.value > 64){
+                currentEvent.value = 0;
+            } else {
+                currentEvent.value = 127;
+            }
+
+        }
+        console.log(currentEvent.type);
+    }
+
+    console.log("Initial recording:");
+    console.log(recordingArray);
+    console.log("Reversed recording:");
+    console.log(reversedRecordingArray);
+    recordingArray = reversedRecordingArray;
+
+}
+
 function logMidiMessage(message) {
             if ((typeof event === 'undefined') || (event === null)) {
                 console.warn("logMidiMessage: null or undefined message received");
@@ -590,7 +646,6 @@ function logMidiMessage(message) {
             }
             console.log(message);
         }
-
 
 function onMIDISuccess(midiAccess) {
     for (var input of midiAccess.inputs.values()){
