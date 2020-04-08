@@ -14,13 +14,13 @@ public class UserController {
     UserService userService;
 
     @GetMapping("/{userId}")
-    public String getUser(@PathVariable(name="userId") String userId) {
-        return "Kevin is a nice boy" +
-                " and a very nice boy";
+    public User getUser(@PathVariable(name="userId") int userId) {
+        User user = userService.findUserByUserId(userId);
+        if(user == null){
+            return null;
+        }
+        return user;
     }
-
-    @GetMapping
-
 
     @PostMapping("/login")
     public User login(@RequestBody LoginDetails ld){

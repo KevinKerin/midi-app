@@ -43,5 +43,18 @@ public class UserService {
         userRepository.save(newUser);
         return newUser;
     }
+
+    public User findUserByUserId(int id){
+        return userRepository.findByUserId(id);
+    }
+
+    public User findUserByUsername(String username){
+        return userRepository.findByUsername(username);
+    }
+
+    public User findUserByEmail(String email){
+        return userRepository.findByEmail(email);
+    }
+
 }
 

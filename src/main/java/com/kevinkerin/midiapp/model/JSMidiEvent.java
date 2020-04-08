@@ -1,13 +1,23 @@
 package com.kevinkerin.midiapp.model;
 
-public class JSMidiEvent {
+import javax.persistence.*;
 
-    private Integer channel;
-    private String type;
-    private double timestamp;
-    private Double velocity;
-    private Integer noteNumber;
-    private Integer pedalValue;
+@Entity
+@Table(name="jsmidievent")
+public class JSMidiEvent {
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "eventId", nullable = false) private Integer eventId;
+    @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="songId") private Song song;
+    @Column(name = "channel", nullable = false) private Integer channel;
+    @Column(name = "type", nullable = false) private String type;
+    @Column(name = "timestamp", nullable = false) private double timestamp;
+    @Column(name = "velocity") private Double velocity;
+    @Column(name = "noteNumber") private Integer noteNumber;
+    @Column(name = "pedalValue") private Integer pedalValue;
+
+    public void setSong(Song song) { this.song = song; }
+
+    public Song getSong() { return song; }
 
     public Integer getPedalValue() {
         return pedalValue;
@@ -60,6 +70,7 @@ public class JSMidiEvent {
     @Override
     public String toString() {
         return "JSMidiEvent{" +
+                "eventId=" + eventId +
                 "channel=" + channel +
                 ", type='" + type + '\'' +
                 ", timestamp=" + timestamp +
