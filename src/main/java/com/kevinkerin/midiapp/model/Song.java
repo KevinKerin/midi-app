@@ -50,6 +50,10 @@ public class Song {
         return this.songLength;
     }
 
+    public int getSongId() {
+        return songId;
+    }
+
     public List<JSMidiEvent> getSongEvents(){
         return jsMidiEventList;
     }

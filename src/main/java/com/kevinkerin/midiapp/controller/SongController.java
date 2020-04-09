@@ -22,11 +22,19 @@ public class SongController {
 //
 //    }
 
-    @PostMapping("/{userId}/save")
-    public Song saveSong(@PathVariable(name="userId") int userId, @RequestBody List<JSMidiEvent> list){
-        Song newSong = new Song(list, "Test", userId);
+//    @PostMapping("/{userId}/save")
+//    public Song saveSong(@PathVariable(name="userId") int userId, @RequestBody List<JSMidiEvent> list){
+//        Song newSong = new Song(list, "Test", userId);
+//        newSong = songService.saveSong(newSong);
+//        return newSong;
+//    }
+
+    @PostMapping("/save")
+    public int saveSong(@RequestBody List<JSMidiEvent> list){
+//        UserId needs to be entered - current method should be used for proof it works only
+        Song newSong = new Song(list, "Test", 1);
         newSong = songService.saveSong(newSong);
-        return newSong;
+        return newSong.getSongId();
     }
 
     @GetMapping("/getSong/{songId}")

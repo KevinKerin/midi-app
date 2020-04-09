@@ -57,6 +57,7 @@ WebMidi.enable(function () {
     document.getElementById('soften').addEventListener('click', function() {changeVelocity(0.9)});
     document.getElementById('reverse-recording').addEventListener('click', function() {reverseRecording()});
     document.getElementById('onscreen-keyboard-audio-toggle').addEventListener('click', onscreenKeyboardAudioToggle);
+    document.getElementById('save-recording').addEventListener('click', function() {saveRecording()});
     document.getElementById('download-recording').addEventListener('click', function() {downloadRecording()});
     document.addEventListener('keypress', keyboardListener);
     input.addListener('noteon', "all", function(e) {noteOn(e, recordingArray, isRecording)});
@@ -223,6 +224,23 @@ function keyboardListener(key){
     }
 }
 
+function clearOtherSelectTabs(selectedOption){
+    var options = ["major-chord", "minor-chord", "major-scale", "minor-scale"];
+    for (var i=0; i<options.length; i++){
+        var currentSelection = document.getElementById(options[i]);
+        console.log(currentSelection.id);
+        console.log(selectedOption);
+        if(currentSelection.id !== selectedOption){
+            var opts = currentSelection.options;
+            for(var j = 0; j < opts.length; j++){
+                if(opts[j].value === "default"){
+                    opts.selectedIndex = j;
+                }
+            }
+        }
+    }
+}
+
 function scaleSelect(type){
     var scaleSelect = document.getElementById(type);
     var currentSelection = scaleSelect.options[scaleSelect.selectedIndex].value;
@@ -272,6 +290,7 @@ function playScale(selection, type){
     }
     console.log(recordingArray);
     playback("onscreen-keyboard");
+    clearOtherSelectTabs(type);
 }
 
 function chordSelect(type){
@@ -347,6 +366,7 @@ function playChord(selection, type){
     }
     console.log(recordingArray);
     playback("onscreen-keyboard");
+    clearOtherSelectTabs(type);
 }
 
 function keyColourChange(note){
@@ -703,6 +723,37 @@ function getMIDIMessage(message) {
 //
 //}
 
+function saveRecording(){
+
+    $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        url: "/song/save",
+        data: JSON.stringify(recordingArray),
+        success: function(data){
+            var savedSongsDropdown = document.getElementById("saved-songs");
+            var newSong = document.createElement("option");
+            newSong.text = "Song ID " + data;
+            newSong.value = data;
+            savedSongsDropdown.add(newSong);
+        }
+    })
+
+}
+
+function songSelect(selectedOption){
+
+    var selectedSongId = selectedOption.value;
+    $.ajax({
+        type: "GET",
+        url: "/song/getSong/" + selectedSongId,
+        success: function(data){
+            // recordingArray = JSON.parse(data);
+            console.log(data);
+        }
+    })
+
+}
 
 function downloadRecording(){
 
@@ -732,30 +783,8 @@ function downloadRecording(){
         console.log("No. " + i + " pushed to jsonArray. Data: " + data);
     }
 
-//    for (var j = 0; j < jsonArray.length; j++){
-        console.log(JSON.stringify(jsonArray));
-//    }
+    console.log(JSON.stringify(jsonArray));
 
-//    jsonArray = JSON.stringify(jsonArray);
-//    var test = {"channel" : "1", "type" : "noteoff", "timestamp" : "1234.123"}
-//    $.ajax({contentType: 'application/json'},  "/midi/download", JSON.stringify(array));
-
-//    $.ajax({
-//        type: "POST",
-//        contentType: "application/json",
-//        url: '/midi/download',
-//        data: JSON.stringify(jsonArray),
-//        success: function(content){
-//            window.MIDIDownload = document.createElement("a");
-//            var date = new Date();
-//            const mediaStream = new MediaStream();
-//            const file = document.getElementById('a');
-//            file.srcObject = mediaStream;
-////            window.MIDIDownload.href = window.URL.createObjectURL(new Blob(content));
-//            window.MIDIDownload.href = content.dataURI;
-//            MIDIDownload.click();
-//        }
-//    });
 
     $.ajax({
         type: "POST",
