@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +51,18 @@ public class UserService {
 
     public User findUserByUsername(String username){
         return userRepository.findByUsername(username);
+    }
+
+    public User loginUser(String username, String password){
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new ValidationException("Username not found");
+        } else if (user != null && user.getPassword().equals(password)){
+            return user;
+        } else if (user != null && !user.getPassword().equals(password)){
+            throw new ValidationException("");
+        }
+        return user;
     }
 
     public User findUserByEmail(String email){

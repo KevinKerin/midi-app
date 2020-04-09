@@ -35,12 +35,22 @@ public class SongController {
         if(song == null){
             return null;
         }
+        for (JSMidiEvent jsme : song.getSongEvents()){
+            System.out.println(jsme);
+        }
         return song;
     }
 
     @GetMapping("/{userId}")
     public List<Song> getUserSongs(@PathVariable(name="userId") int userId) {
-        return songService.findSongsByUserId(userId);
+        List<Song> songList = songService.findSongsByUserId(userId);
+        for (Song song : songList){
+            for (JSMidiEvent jsme : song.getSongEvents()){
+                System.out.println(jsme);
+            }
+            System.out.println();
+        }
+        return songList;
     }
 
 }

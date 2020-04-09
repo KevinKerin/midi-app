@@ -223,7 +223,17 @@ function keyboardListener(key){
     }
 }
 
-function playScale(number, type){
+function scaleSelect(type){
+    var scaleSelect = document.getElementById(type);
+    var currentSelection = scaleSelect.options[scaleSelect.selectedIndex].value;
+    var type = scaleSelect.id;
+    console.log(type);
+    playScale(currentSelection, type);
+}
+
+function playScale(selection, type){
+    var number = parseInt(selection, 10);
+    console.log(number + " " + type);
     var majorSteps = [2, 2, 1, 2, 2, 2, 1];
     var minorSteps = [2, 1, 2, 2, 1, 2, 2];
     var timestamp = 0;
@@ -252,9 +262,9 @@ function playScale(number, type){
             },
             "velocity" : 0
         });
-        if(type === "major"){
+        if(type === "major-scale"){
             number += majorSteps[i];
-        } else if (type === "minor"){
+        } else if (type === "minor-scale"){
             number += minorSteps[i];
         } else {
             console.log("Error in reaching next note of scale");
@@ -264,13 +274,22 @@ function playScale(number, type){
     playback("onscreen-keyboard");
 }
 
-function playChord(number, type){
+function chordSelect(type){
+    var chordSelect = document.getElementById(type);
+    var currentSelection = chordSelect.options[chordSelect.selectedIndex].value;
+    var type = chordSelect.id;
+    console.log(type);
+    playChord(currentSelection, type);
+}
+
+function playChord(selection, type){
+    var number = parseInt(selection, 10);
     recordingArray = [];
     var timestamp = 0;
     var chordArray;
-    if(type === "major"){
+    if(type === "major-chord"){
         chordArray = [number, number+4, number+7];
-    } else if (type === "minor"){
+    } else if (type === "minor-chord"){
         chordArray = [number, number+3, number+7]
     } else {
         console.log("Error in creating chord array");

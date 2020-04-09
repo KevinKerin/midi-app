@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Account</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+<body>
+<div>Username: <input type="text" id="username"></div>
+<div>Password: <input type="password" id="password"></div>
+<div><input type="button" id="submit" value="Submit" onclick="login()"></div>
+</body>
+
+<script>
+    function login(){
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+
+        if(username == null || "" === (username.trim())){
+            alert("Username field is empty");
+            return;
+        }else if(password == null || "" === (password.trim())){
+            alert("Password field is empty");
+            return;
+        }
+
+        var loginDetails = {
+            "username": username,
+            "password": password
+        };
+
+        $.ajax({
+                url: "http://localhost:8000/user/login",
+                type: "POST",
+                data: JSON.stringify(loginDetails),
+                contentType: "application/json",
+                success: function(data) {
+                    console.log("Data = " + data);
+                    alert("Login successful. Welcome " + data + "!");
+                    window.location.replace("index.html");
+                },
+                error: function(textStatus, errorThrown) {
+                    console.log(JSON.stringify(user));
+                    console.log(textStatus);
+                    console.log(errorThrown);
+                    alert(textStatus.responseJSON.message);
+                }
+            }
+        );
+
+    }
+
+</script>
+</html>

@@ -24,9 +24,11 @@ public class UserController {
 
     @PostMapping("/login")
     public User login(@RequestBody LoginDetails ld){
-        User user = new User();
-        user.setFirstName("Kvin");
-        return user;
+        User user = userService.findUserByUsername(ld.getUsername());
+        if(user != null && user.getPassword().equals(ld.getPassword())){
+            return user;
+        }
+        return null;
     }
 
     @PostMapping("/register")

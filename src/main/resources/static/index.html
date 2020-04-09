@@ -138,73 +138,82 @@
 <p>Logged in as Kevin Kerin</p>
 <a href="">My Account</a>
 <a href="">Logout</a>
-<a href=""></a>
+<a href="register.html">Register</a>
+<a href="login.html">Login</a>
 <div id="box">
     <div class="database" id="scales">
         <h4>Major Scales</h4>
-<!--        <form>-->
-<!--            Choose direction of scale <br>-->
-<!--            <input type="radio" name="scale-direction" id="scale-forwards" checked>Forwards-->
-<!--            <input type="radio" name="scale-direction" id="scale-backwards">Backwards <br>-->
-<!--            <input type="radio" name="scale-direction" id="scale-both-directions">Both-->
-<!--        </form>-->
-        <a href='javascript:playScale(48, "major")'>C major</a></br>
-        <a href='javascript:playScale(49, "major")'>C#/Db major</a></br>
-        <a href='javascript:playScale(50, "major")'>D major</a></br>
-        <a href='javascript:playScale(51, "major")'>D#/Eb major</a></br>
-        <a href='javascript:playScale(52, "major")'>E major</a></br>
-        <a href='javascript:playScale(53, "major")'>F major</a></br>
-        <a href='javascript:playScale(54, "major")'>F#/Gb major</a></br>
-        <a href='javascript:playScale(55, "major")'>G major</a></br>
-        <a href='javascript:playScale(56, "major")'>G#/Ab major</a></br>
-        <a href='javascript:playScale(57, "major")'>A major</a></br>
-        <a href='javascript:playScale(58, "major")'>A#/Bb major</a></br>
-        <a href='javascript:playScale(59, "major")'>B major</a>
+
+        <select id="major-scale" onchange="scaleSelect(id)">
+            <option value="default"></option>
+            <option value="48">C major</option>
+            <option value="49">C#/Db major</option>
+            <option value="50">D major</option>
+            <option value="51">D#/Eb major</option>
+            <option value="52">E major</option>
+            <option value="53">F major</option>
+            <option value="54">F#/Gb major</option>
+            <option value="55">G major</option>
+            <option value="56">G#/Ab major</option>
+            <option value="57">A major</option>
+            <option value="58">A#/Bb major</option>
+            <option value="59">B major</option>
+        </select>
 
         <h4>Minor Scales</h4>
-        <a href='javascript:playScale(48, "minor")'>C minor</a></br>
-        <a href='javascript:playScale(49, "minor")'>C#/Db minor</a></br>
-        <a href='javascript:playScale(50, "minor")'>D minor</a></br>
-        <a href='javascript:playScale(51, "minor")'>D#/Eb minor</a></br>
-        <a href='javascript:playScale(52, "minor")'>E minor</a></br>
-        <a href='javascript:playScale(53, "minor")'>F minor</a></br>
-        <a href='javascript:playScale(54, "minor")'>F#/Gb minor</a></br>
-        <a href='javascript:playScale(55, "minor")'>G minor</a></br>
-        <a href='javascript:playScale(56, "minor")'>G#/Ab minor</a></br>
-        <a href='javascript:playScale(57, "minor")'>A minor</a></br>
-        <a href='javascript:playScale(58, "minor")'>A#/Bb minor</a></br>
-        <a href='javascript:playScale(59, "minor")'>B minor</a>
 
-        <h4>Basic Chords</h4>
-        <a href='javascript:playChord(48, "major")'>C major</a></br>
-        <a href='javascript:playChord(49, "major")'>C#/Db major</a></br>
-        <a href='javascript:playChord(50, "major")'>D major</a></br>
-        <a href='javascript:playChord(51, "major")'>D#/Eb major</a></br>
-        <a href='javascript:playChord(52, "major")'>E major</a></br>
-        <a href='javascript:playChord(53, "major")'>F major</a></br>
-        <a href='javascript:playChord(54, "major")'>F#/Gb major</a></br>
-        <a href='javascript:playChord(55, "major")'>G major</a></br>
-        <a href='javascript:playChord(56, "major")'>G#/Ab major</a></br>
-        <a href='javascript:playChord(57, "major")'>A major</a></br>
-        <a href='javascript:playChord(58, "major")'>A#/Bb major</a></br>
-        <a href='javascript:playChord(59, "major")'>B major</a>
+        <select id="minor-scale" onchange="scaleSelect(id)">
+            <option value="default"></option>
+            <option value="48">C minor</option>
+            <option value="49">C#/Db minor</option>
+            <option value="50">D minor</option>
+            <option value="51">D#/Eb minor</option>
+            <option value="52">E minor</option>
+            <option value="53">F minor</option>
+            <option value="54">F#/Gb minor</option>
+            <option value="55">G minor</option>
+            <option value="56">G#/Ab minor</option>
+            <option value="57">A minor</option>
+            <option value="58">A#/Bb minor</option>
+            <option value="59">B minor</option>
+        </select>
 
-        <a href='javascript:playChord(48, "minor")'>C minor</a></br>
-        <a href='javascript:playChord(49, "minor")'>C#/Db minor</a></br>
-        <a href='javascript:playChord(50, "minor")'>D minor</a></br>
-        <a href='javascript:playChord(51, "minor")'>D#/Eb minor</a></br>
-        <a href='javascript:playChord(52, "minor")'>E minor</a></br>
-        <a href='javascript:playChord(53, "minor")'>F minor</a></br>
-        <a href='javascript:playChord(54, "minor")'>F#/Gb minor</a></br>
-        <a href='javascript:playChord(55, "minor")'>G minor</a></br>
-        <a href='javascript:playChord(56, "minor")'>G#/Ab minor</a></br>
-        <a href='javascript:playChord(57, "minor")'>A minor</a></br>
-        <a href='javascript:playChord(58, "minor")'>A#/Bb minor</a></br>
-        <a href='javascript:playChord(59, "minor")'>B minor</a>
+        <h4>Major Chords</h4>
 
+        <select id="major-chord" onchange="chordSelect(id)">
+            <option value="default"></option>
+            <option value="48">C major</option>
+            <option value="49">C#/Db major</option>
+            <option value="50">D major</option>
+            <option value="51">D#/Eb major</option>
+            <option value="52">E major</option>
+            <option value="53">F major</option>
+            <option value="54">F#/Gb major</option>
+            <option value="55">G major</option>
+            <option value="56">G#/Ab major</option>
+            <option value="57">A major</option>
+            <option value="58">A#/Bb major</option>
+            <option value="59">B major</option>
+        </select>
 
-        <h4>Intermediate Chords</h4>
-        <a href="">etc.</a>
+        <h4>Minor Chords</h4>
+
+        <select id="minor-chord" onchange="chordSelect(id)">
+            <option value="default"></option>
+            <option value="48">C minor</option>
+            <option value="49">C#/Db minor</option>
+            <option value="50">D minor</option>
+            <option value="51">D#/Eb minor</option>
+            <option value="52">E minor</option>
+            <option value="53">F minor</option>
+            <option value="54">F#/Gb minor</option>
+            <option value="55">G minor</option>
+            <option value="56">G#/Ab minor</option>
+            <option value="57">A minor</option>
+            <option value="58">A#/Bb minor</option>
+            <option value="59">B minor</option>
+        </select>
+
     </div>
     <div id="main">
 
