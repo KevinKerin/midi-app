@@ -8,6 +8,16 @@ var output;
 var isRecording = false;
 var icon = document.getElementById("icon");
 var notesList = [];
+var octaveSlider = document.getElementById("octave-slider");
+var transposeSlider = document.getElementById("transpose-slider");
+var speedSlider = document.getElementById("speed-slider");
+var currentOctave = 0;
+var currentKey = 0;
+var currentSpeed = 1;
+var currentOctaveContainer = document.getElementById("current-octave");
+var currentKeyContainer = document.getElementById("current-key");
+var currentSpeedContainer = document.getElementById("current-speed");
+
 createNoteList(notesList);
 var onscreenKeyboardAudio = true;
 var selectedPreset=_tone_0000_Aspirin_sf2_file;
@@ -18,6 +28,53 @@ player.adjustPreset(audioContext,selectedPreset);
 function startWaveTableNow(pitch) {
     var audioBufferSourceNode = player.queueWaveTable(audioContext, audioContext.destination, selectedPreset, audioContext.currentTime + 0, pitch, 1.0);
 }
+
+// Current speed is 1, desired speed 1.1, increase of 0.1.
+// changeSpeed( 1 + (desiredSpeed-currentSpeed))?
+// current speed 1.1, desired speed 1.2... increase by 0.1 - changeSpeed(1 + (0.1))
+// current speed 0.9, desired speed 1.4... increase of 0.5 - changeSpeed(1+ (0.5))
+// current speed 1.3, desired speed 1.2... decrease of 0.1 - changeSpeed(1 + (-0.1))
+//
+//
+// d
+
+currentOctaveContainer.innerHTML = octaveSlider.value;
+octaveSlider.oninput = function() {
+    currentOctaveContainer.innerHTML = this.value;
+    var octave = parseInt(this.value);
+    if(recordingArray.length > 0){
+        console.log("Current octave is " + currentOctave);
+        console.log("Desired octave is " + octave);
+        console.log("Octave needs to change by " + (octave - currentOctave));
+        changeTune((octave - currentOctave)*12);
+        console.log(this.value);
+        console.log(currentOctave);
+        console.log("Above 2 values should be equal");
+        currentOctave = recordingArray[0].note.octave;
+        findCurrentOctave();
+    }
+}
+
+currentKeyContainer.innerHTML = transposeSlider.value;
+transposeSlider.oninput = function() {
+    var key = parseInt(this.value);
+    if(recordingArray.length > 0){
+        changeTune(key - currentKey);
+        currentKey = this.value;
+    }
+    currentKeyContainer.innerHTML = this.value;
+}
+
+currentSpeedContainer.innerHTML = speedSlider.value;
+speedSlider.oninput = function() {
+    var speed = parseFloat(this.value);
+    if(recordingArray.length > 0){
+        changeSpeed(1 + speed - currentSpeed);
+        currentSpeed = this.value;
+    }
+    currentSpeedContainer.innerHTML = this.value;
+}
+
 
 WebMidi.enable(function () {
 
@@ -47,12 +104,12 @@ WebMidi.enable(function () {
     document.getElementById('stop-recording').addEventListener('click', stopRecording);
     document.getElementById('clear-recording').addEventListener('click', clearRecording);
     document.getElementById('login').addEventListener('click', login);
-    document.getElementById('octave-down').addEventListener('click', function() {changeTune(-12)});
-    document.getElementById('octave-up').addEventListener('click', function() {changeTune(12)});
-    document.getElementById('transpose-down').addEventListener('click', function() {changeTune(-1)});
-    document.getElementById('transpose-up').addEventListener('click', function() {changeTune(1)});
-    document.getElementById('speed-up').addEventListener('click', function() {changeSpeed(1.1)});
-    document.getElementById('speed-down').addEventListener('click', function() {changeSpeed(0.9)});
+    // document.getElementById('octave-down').addEventListener('click', function() {changeTune(-12)});
+    // document.getElementById('octave-up').addEventListener('click', function() {changeTune(12)});
+    // document.getElementById('transpose-down').addEventListener('click', function() {changeTune(-1)});
+    // document.getElementById('transpose-up').addEventListener('click', function() {changeTune(1)});
+    // document.getElementById('speed-up').addEventListener('click', function() {changeSpeed(1.1)});
+    // document.getElementById('speed-down').addEventListener('click', function() {changeSpeed(0.9)});
     document.getElementById('harden').addEventListener('click', function() {changeVelocity(1.1)});
     document.getElementById('soften').addEventListener('click', function() {changeVelocity(0.9)});
     document.getElementById('reverse-recording').addEventListener('click', function() {reverseRecording()});
@@ -65,9 +122,17 @@ WebMidi.enable(function () {
     input.addListener('controlchange', "all", function (e) {
         if(isRecording){
             console.log("Received 'controlchange' message.", e);
-                recordingArray.push(e);
+            recordingArray.push(e);
         }
     });
+    // input.addListener('noteon', "all", function(e) {noteOn(e, recordingArray, isRecording)});
+    // input.addListener('noteoff', "all", function(e) {noteOff (e, recordingArray, isRecording)});
+    // input.addListener('controlchange', "all", function (e) {
+    //     if(isRecording){
+    //         console.log("Received 'controlchange' message.", e);
+    //             recordingArray.push(e);
+    //     }
+    // });
 
     input.addListener('songselect', 'all',
         function(e){
@@ -84,6 +149,22 @@ WebMidi.enable(function () {
     );
 
 });
+
+function findCurrentOctave(){
+    if(recordingArray.length > 0){
+        for (let i = 0; i < recordingArray.length; i++) {
+            var currentEvent = recordingArray[i];
+            if(currentEvent.type === "noteon"){
+                currentOctave = currentEvent.note.octave;
+                break;
+            }
+        }
+    } else {
+        currentOctave = 0;
+    }
+    octaveSlider.value = currentOctave;
+    currentOctaveContainer.innerHTML = octaveSlider.value;
+}
 
 function createNoteList(notesList){
     var noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -165,7 +246,9 @@ function stopRecording(){
     } else {
         alert("Device is not being recorded. Click 'Start Recording to begin, or 'Play' to listen");
     }
+    findCurrentOctave();
     console.log(recordingArray);
+    clearOtherSelectTabs();
 }
 
 function onscreenKeyboardAudioToggle(){
@@ -224,7 +307,18 @@ function keyboardListener(key){
     }
 }
 
+function resetSliders(){
+    currentKey = 0;
+    findCurrentOctave();
+    transposeSlider.value = 0;
+    currentKeyContainer.innerHTML = "0";
+    currentSpeed = 1;
+    speedSlider.value = 1;
+    currentSpeedContainer.innerHTML = "1";
+}
+
 function clearOtherSelectTabs(selectedOption){
+    resetSliders();
     var options = ["major-chord", "minor-chord", "major-scale", "minor-scale"];
     for (var i=0; i<options.length; i++){
         var currentSelection = document.getElementById(options[i]);
@@ -289,6 +383,8 @@ function playScale(selection, type){
         }
     }
     console.log(recordingArray);
+    currentOctave = recordingArray[0].note.octave;
+    console.log("Current octave is " + currentOctave);
     playback("onscreen-keyboard");
     clearOtherSelectTabs(type);
 }
@@ -365,6 +461,8 @@ function playChord(selection, type){
         });
     }
     console.log(recordingArray);
+    currentOctave = recordingArray[0].note.octave;
+    console.log("Current octave is " + currentOctave);
     playback("onscreen-keyboard");
     clearOtherSelectTabs(type);
 }
@@ -454,7 +552,6 @@ function changeTune(amountOfKeys){
             }
         }
         console.log("Transpose change by " + amountOfKeys + " keys complete.");
-        alert("Transpose change by " + amountOfKeys + " keys complete.");
     } else {
         alert("Record some music before attempting to edit");
     }
@@ -467,7 +564,6 @@ function changeSpeed(num){
                 recordingArray[i].timestamp = recordingArray[i].timestamp / num;
             }
         console.log("Speed change by " + num + "x complete.");
-        alert("Speed change by " + num + "x complete.");
     } else {
         alert("Record some music before attempting to edit");
     }
@@ -747,9 +843,11 @@ function songSelect(selectedOption){
     $.ajax({
         type: "GET",
         url: "/song/getSong/" + selectedSongId,
+        dataType: "text",
         success: function(data){
-            // recordingArray = JSON.parse(data);
+            recordingArray = data;
             console.log(data);
+            console.log(recordingArray);
         }
     })
 

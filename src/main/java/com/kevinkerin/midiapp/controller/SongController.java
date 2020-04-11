@@ -5,6 +5,7 @@ import com.kevinkerin.midiapp.model.Song;
 import com.kevinkerin.midiapp.model.User;
 import com.kevinkerin.midiapp.service.SongService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -37,16 +38,18 @@ public class SongController {
         return newSong.getSongId();
     }
 
-    @GetMapping("/getSong/{songId}")
-    public Song getSong(@PathVariable(name="songId") int songId){
+    @GetMapping(value = "/getSong/{songId}", produces = MediaType.TEXT_PLAIN_VALUE)
+    public String getSong(@PathVariable(name="songId") int songId){
         Song song = songService.findSongBySongId(songId);
         if(song == null){
             return null;
         }
+        String result = "";
         for (JSMidiEvent jsme : song.getSongEvents()){
-            System.out.println(jsme);
+            result += "Event: " + jsme.getType() + "\n";
         }
-        return song;
+
+        return result;
     }
 
     @GetMapping("/{userId}")

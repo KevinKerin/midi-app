@@ -22,6 +22,23 @@ public class Song {
     )
     private List<JSMidiEvent> jsMidiEventList = new ArrayList<>();
 
+//    public static void main(String[] args) {
+//        List<JSMidiEvent> eventList = new ArrayList<>();
+//        for (int i = 0; i < 20; i++) {
+//            JSMidiEvent jsme = new JSMidiEvent();
+//            jsme.setChannel(1);
+//            jsme.setNoteNumber(50);
+//            jsme.setType("noteon");
+//            jsme.setTimestamp(500);
+//            jsme.setVelocity(0.5);
+//            eventList.add(jsme);
+//        }
+//        Song song = new Song(eventList, "Testy test test", 1);
+//
+//        System.out.println(song.getSongEvents());
+//        System.out.println(song);
+//    }
+
     public Song() {
     }
 
@@ -76,6 +93,14 @@ public class Song {
 
     public void setSongName(String name) {
         this.songName = name;
+    }
+
+    public String toString(){
+        String result = "";
+        for (JSMidiEvent jsme : jsMidiEventList){
+            result += jsme + "\n";
+        }
+        return result;
     }
 
 }
