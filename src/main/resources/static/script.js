@@ -104,12 +104,6 @@ WebMidi.enable(function () {
     document.getElementById('stop-recording').addEventListener('click', stopRecording);
     document.getElementById('clear-recording').addEventListener('click', clearRecording);
     document.getElementById('login').addEventListener('click', login);
-    // document.getElementById('octave-down').addEventListener('click', function() {changeTune(-12)});
-    // document.getElementById('octave-up').addEventListener('click', function() {changeTune(12)});
-    // document.getElementById('transpose-down').addEventListener('click', function() {changeTune(-1)});
-    // document.getElementById('transpose-up').addEventListener('click', function() {changeTune(1)});
-    // document.getElementById('speed-up').addEventListener('click', function() {changeSpeed(1.1)});
-    // document.getElementById('speed-down').addEventListener('click', function() {changeSpeed(0.9)});
     document.getElementById('harden').addEventListener('click', function() {changeVelocity(1.1)});
     document.getElementById('soften').addEventListener('click', function() {changeVelocity(0.9)});
     document.getElementById('reverse-recording').addEventListener('click', function() {reverseRecording()});
@@ -821,16 +815,21 @@ function getMIDIMessage(message) {
 
 function saveRecording(){
 
+    var song = {
+        "songName" : "Johnny Jump Up",
+        "jsMidiEventList" : recordingArray
+    };
+
     $.ajax({
         type: "POST",
         contentType: "application/json",
         url: "/song/save",
-        data: JSON.stringify(recordingArray),
+        data: JSON.stringify(song),
         success: function(data){
             var savedSongsDropdown = document.getElementById("saved-songs");
             var newSong = document.createElement("option");
-            newSong.text = "Song ID " + data;
-            newSong.value = data;
+            newSong.value = "1";
+            newSong.text = "Song ID " + newSong.value;
             savedSongsDropdown.add(newSong);
         }
     })
@@ -845,6 +844,7 @@ function songSelect(selectedOption){
         url: "/song/getSong/" + selectedSongId,
         dataType: "text",
         success: function(data){
+            alert("Request successful. " + data);
             recordingArray = data;
             console.log(data);
             console.log(recordingArray);
