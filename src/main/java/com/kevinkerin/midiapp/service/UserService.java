@@ -1,13 +1,18 @@
 package com.kevinkerin.midiapp.service;
 
 import com.kevinkerin.midiapp.dal.UserRepository;
+import com.kevinkerin.midiapp.dto.UserOutputDTO;
+import com.kevinkerin.midiapp.dto.UserRegistrationDTO;
 import com.kevinkerin.midiapp.exception.ValidationException;
+import com.kevinkerin.midiapp.model.LoginDetails;
 import com.kevinkerin.midiapp.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import javax.validation.Valid;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,30 +24,67 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User createUser(User newUser){
-        if(newUser == null){
+    public UserOutputDTO createUser(UserRegistrationDTO userRegistrationDTO) throws NoSuchAlgorithmException {
+        if(userRegistrationDTO == null){
             throw new ValidationException("New user is null");
         }
-        if(StringUtils.isEmpty(newUser.getFirstName())){
+        if(StringUtils.isEmpty(userRegistrationDTO.getFirstName())){
             throw new ValidationException("First name field is empty");
-        } else if(StringUtils.isEmpty(newUser.getLastName())){
+        } else if(StringUtils.isEmpty(userRegistrationDTO.getLastName())){
             throw new ValidationException("Last name field is empty");
-        } else if(StringUtils.isEmpty(newUser.getEmail())){
+        } else if(StringUtils.isEmpty(userRegistrationDTO.getEmail())){
             throw new ValidationException("Email field is empty");
-        } else if(StringUtils.isEmpty(newUser.getUsername())){
+        } else if(StringUtils.isEmpty(userRegistrationDTO.getUsername())){
             throw new ValidationException("Username field is empty");
-        } else if(StringUtils.isEmpty(newUser.getPassword())){
+        } else if(StringUtils.isEmpty(userRegistrationDTO.getPassword())){
             throw new ValidationException("Password field is empty");
         }
-        if(userRepository.findByEmail(newUser.getEmail()) != null){
+        if(userRepository.findByEmail(userRegistrationDTO.getEmail()) != null){
             throw new ValidationException("Account already created with this email");
-        } else if (userRepository.findByUsername(newUser.getUsername()) != null){
+        } else if (userRepository.findByUsername(userRegistrationDTO.getUsername()) != null){
             throw new ValidationException("Username taken");
         }
 
-//userList.add(newUser);
-        userRepository.save(newUser);
-        return newUser;
+        User user = convertRegistrationDTO(userRegistrationDTO);
+        userRepository.save(user);
+        return convertOutputDTO(user);
+    }
+
+    private User convertRegistrationDTO(UserRegistrationDTO userRegistrationDTO) throws NoSuchAlgorithmException {
+        User user = new User();
+        user.setFirstName(userRegistrationDTO.getFirstName());
+        user.setLastName(userRegistrationDTO.getLastName());
+        user.setUsername(userRegistrationDTO.getUsername());
+        user.setEmail(userRegistrationDTO.getEmail());
+        user.setPassword(hashPassword(userRegistrationDTO.getPassword()));
+
+        return user;
+    }
+
+    private UserOutputDTO convertOutputDTO(User user){
+        UserOutputDTO userOutputDTO = new UserOutputDTO();
+        userOutputDTO.setFirstName(user.getFirstName());
+        userOutputDTO.setLastName(user.getLastName());
+        userOutputDTO.setUsername(user.getUsername());
+        userOutputDTO.setEmail(user.getEmail());
+
+        return userOutputDTO;
+    }
+
+    private String hashPassword(String password) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] encodedhash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+        return bytesToHex(encodedhash);
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 
     public User findUserByUserId(int id){
@@ -53,8 +95,8 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public User loginUser(String username, String password){
-        User user = userRepository.findByUsername(username);
+    public User loginUser(LoginDetails loginDetails){
+        User user = userRepository.findByUsername(loginDetails.getUsername());
         if (user == null) {
             throw new ValidationException("Username not found");
         } else if (user != null && user.getPassword().equals(password)){
@@ -70,4 +112,3 @@ public class UserService {
     }
 
 }
-

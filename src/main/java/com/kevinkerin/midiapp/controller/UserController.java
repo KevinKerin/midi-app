@@ -1,5 +1,7 @@
 package com.kevinkerin.midiapp.controller;
 
+import com.kevinkerin.midiapp.dto.UserOutputDTO;
+import com.kevinkerin.midiapp.dto.UserRegistrationDTO;
 import com.kevinkerin.midiapp.model.LoginDetails;
 import com.kevinkerin.midiapp.model.User;
 import com.kevinkerin.midiapp.service.UserService;
@@ -13,32 +15,24 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    @GetMapping("/{userId}")
-    public User getUser(@PathVariable(name="userId") int userId) {
-        User user = userService.findUserByUserId(userId);
-        if(user == null){
-            return null;
-        }
-        return user;
-    }
-
     @PostMapping("/login")
-    public User login(@RequestBody LoginDetails ld){
-        User user = userService.findUserByUsername(ld.getUsername());
-        if(user != null && user.getPassword().equals(ld.getPassword())){
-            return user;
+    public UserOutputDTO login(@RequestBody LoginDetails loginDetails){
+        if(userService.loginUser(loginDetails) == null){
+
+        } else {
+
         }
-        return null;
     }
 
     @PostMapping("/register")
-    public User register(@RequestBody User newUser){
-        newUser = userService.createUser(newUser);
-        if(newUser == null){
+    public UserOutputDTO register(@RequestBody UserRegistrationDTO newUser){
+        UserOutputDTO createdUser = userService.createUser(newUser);
+        if(createdUser == null){
             System.out.println("Error in registration");
             return null;
         }
-        return newUser;
+
+        return createdUser;
     }
 
 }
