@@ -40,8 +40,8 @@ public class SongController {
         return newSong.getSongId();
     }
 
-    @GetMapping(value = "/getSong/{songId}", produces = MediaType.TEXT_PLAIN_VALUE)
-    public String getSong(@PathVariable(name="songId") int songId){
+    @GetMapping(value = "/getSong/{songId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Song getSong(@PathVariable(name="songId") int songId){
         Song song = songService.findSongBySongId(songId);
 //        if(song == null){
 //            return null;
@@ -49,8 +49,7 @@ public class SongController {
 //        for (JSMidiEvent jsme : song.getSongEvents()){
 //            System.out.println(jsme);
 //        }
-        String result = "" + song.getSongId() + ", " + song.getSongName() + ", length: " + song.getSongLength();
-        return song.toString();
+        return song;
     }
 
 

@@ -1,6 +1,7 @@
 package com.kevinkerin.midiapp.service;
 
 import com.kevinkerin.midiapp.model.JSMidiEvent;
+import com.kevinkerin.midiapp.model.Note;
 import org.springframework.stereotype.Service;
 
 import javax.sound.midi.*;
@@ -70,7 +71,8 @@ public class MidiDownloadService {
             for (JSMidiEvent event : midiEventList){
                 if(event.getType().equals("noteon")){
 
-                    int noteNumber = event.getNoteNumber();
+                    Note note = event.getNote();
+                    int noteNumber = note.getNumber();
                     mm = new ShortMessage();
                     mm.setMessage(0x90, noteNumber,0x60);
                     me = new MidiEvent(mm, (long) (event.getTimestamp() / (1000/50)));
@@ -90,7 +92,8 @@ public class MidiDownloadService {
 
                 } else if(event.getType().equals("noteoff")){
 
-                    int noteNumber = event.getNoteNumber();
+                    Note note = event.getNote();
+                    int noteNumber = note.getNumber();
                     mm = new ShortMessage();
                     mm.setMessage(0x80, noteNumber,0x40);
                     me = new MidiEvent(mm, (long) (event.getTimestamp() / (1000/50)));

@@ -1,5 +1,7 @@
 package com.kevinkerin.midiapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -7,12 +9,12 @@ import javax.persistence.*;
 public class JSMidiEvent {
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "eventId", nullable = false) private Integer eventId;
-    @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="songId") private Song song;
+    @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="songId") @JsonIgnore private Song song;
     @Column(name = "channel", nullable = false) private Integer channel;
     @Column(name = "type", nullable = false) private String type;
     @Column(name = "timestamp", nullable = false) private double timestamp;
     @Column(name = "velocity") private Double velocity;
-    @Column(name = "noteNumber") private Integer noteNumber;
+    @OneToOne(cascade=CascadeType.ALL, targetEntity = Note.class, mappedBy = "jsMidiEvent") private Note note;
     @Column(name = "pedalValue") private Integer pedalValue;
 
     public void setSong(Song song) { this.song = song; }
@@ -59,12 +61,12 @@ public class JSMidiEvent {
         this.timestamp = timestamp;
     }
 
-    public Integer getNoteNumber() {
-        return noteNumber;
+    public Note getNote() {
+        return note;
     }
 
-    public void setNoteNumber(Integer noteNumber) {
-        this.noteNumber = noteNumber;
+    public void setNote(Note note) {
+        this.note = note;
     }
 
     @Override
@@ -75,7 +77,7 @@ public class JSMidiEvent {
                 ", type='" + type + '\'' +
                 ", timestamp=" + timestamp +
                 ", velocity=" + velocity +
-                ", noteNumber=" + noteNumber +
+                ", note=" + note +
                 ", pedalValue=" + pedalValue +
                 '}';
     }

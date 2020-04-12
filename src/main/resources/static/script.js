@@ -842,12 +842,9 @@ function songSelect(selectedOption){
     $.ajax({
         type: "GET",
         url: "/song/getSong/" + selectedSongId,
-        dataType: "text",
+        dataType: "json",
         success: function(data){
-            alert("Request successful. " + data);
-            recordingArray = data;
-            console.log(data);
-            console.log(recordingArray);
+            recordingArray = data['jsMidiEventList'];
         }
     })
 
