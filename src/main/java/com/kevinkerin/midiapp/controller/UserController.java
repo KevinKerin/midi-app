@@ -18,12 +18,12 @@ public class UserController {
     UserService userService;
 
     @PostMapping("/login")
-    public Session login(@RequestBody LoginDetails loginDetails) throws NoSuchAlgorithmException {
+    public UserOutputDTO login(@RequestBody LoginDetails loginDetails) throws NoSuchAlgorithmException {
         return userService.loginUser(loginDetails);
     }
 
     @PostMapping("/register")
-    public UserOutputDTO register(@RequestBody UserRegistrationDTO newUser){
+    public UserOutputDTO register(@RequestBody UserRegistrationDTO newUser) throws NoSuchAlgorithmException {
         UserOutputDTO createdUser = userService.createUser(newUser);
         if(createdUser == null){
             System.out.println("Error in registration");

@@ -97,14 +97,12 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public Session loginUser(LoginDetails loginDetails) throws NoSuchAlgorithmException {
+    public UserOutputDTO loginUser(LoginDetails loginDetails) throws NoSuchAlgorithmException {
         User user = userRepository.findByUsername(loginDetails.getUsername());
         if (user == null) {
             throw new LoginException("Username not found");
         } else {
             if (hashPassword(loginDetails.getPassword()).equals(user.getPassword())){
-                Session session = new Session();
-                session.
                 return convertOutputDTO(user);
             } else {
                 throw new LoginException("Incorrect password");
