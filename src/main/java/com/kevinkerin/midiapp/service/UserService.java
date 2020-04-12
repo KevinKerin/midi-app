@@ -3,8 +3,10 @@ package com.kevinkerin.midiapp.service;
 import com.kevinkerin.midiapp.dal.UserRepository;
 import com.kevinkerin.midiapp.dto.UserOutputDTO;
 import com.kevinkerin.midiapp.dto.UserRegistrationDTO;
+import com.kevinkerin.midiapp.exception.LoginException;
 import com.kevinkerin.midiapp.exception.ValidationException;
 import com.kevinkerin.midiapp.model.LoginDetails;
+import com.kevinkerin.midiapp.model.Session;
 import com.kevinkerin.midiapp.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -95,16 +97,19 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public User loginUser(LoginDetails loginDetails){
+    public Session loginUser(LoginDetails loginDetails) throws NoSuchAlgorithmException {
         User user = userRepository.findByUsername(loginDetails.getUsername());
         if (user == null) {
-            throw new ValidationException("Username not found");
-        } else if (user != null && user.getPassword().equals(password)){
-            return user;
-        } else if (user != null && !user.getPassword().equals(password)){
-            throw new ValidationException("");
+            throw new LoginException("Username not found");
+        } else {
+            if (hashPassword(loginDetails.getPassword()).equals(user.getPassword())){
+                Session session = new Session();
+                session.
+                return convertOutputDTO(user);
+            } else {
+                throw new LoginException("Incorrect password");
+            }
         }
-        return user;
     }
 
     public User findUserByEmail(String email){

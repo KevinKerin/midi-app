@@ -8,6 +8,8 @@ import com.kevinkerin.midiapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.NoSuchAlgorithmException;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -16,12 +18,8 @@ public class UserController {
     UserService userService;
 
     @PostMapping("/login")
-    public UserOutputDTO login(@RequestBody LoginDetails loginDetails){
-        if(userService.loginUser(loginDetails) == null){
-
-        } else {
-
-        }
+    public Session login(@RequestBody LoginDetails loginDetails) throws NoSuchAlgorithmException {
+        return userService.loginUser(loginDetails);
     }
 
     @PostMapping("/register")
