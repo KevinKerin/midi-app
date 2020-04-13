@@ -2,12 +2,14 @@ package com.kevinkerin.midiapp.service;
 
 import com.kevinkerin.midiapp.dal.SongRepository;
 import com.kevinkerin.midiapp.exception.ValidationException;
+import com.kevinkerin.midiapp.model.Controller;
 import com.kevinkerin.midiapp.model.JSMidiEvent;
 import com.kevinkerin.midiapp.model.Note;
 import com.kevinkerin.midiapp.model.Song;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.naming.ldap.Control;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,8 +33,13 @@ public class SongService {
         savedSong = songRepository.save(song);
 
         for (JSMidiEvent jsme : savedSong.getJsMidiEventList()){
-            Note note = jsme.getNote();
-            note.setJsMidiEvent(jsme);
+            if(jsme.getType().equals("noteon") || jsme.getType().equals("noteoff")){
+                Note note = jsme.getNote();
+                note.setJsMidiEvent(jsme);
+            } else if (jsme.getType().equals("controlchange")){
+                Controller controller = jsme.getController();
+                controller.setJsMidiEvent(jsme);
+            }
         }
 
         return songRepository.save(savedSong);

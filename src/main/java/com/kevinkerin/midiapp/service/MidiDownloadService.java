@@ -112,7 +112,7 @@ public class MidiDownloadService {
 //                    System.out.println("MidiEvent get tick: " + me.getTick());
 
                 } else if(event.getType().equals("controlchange")){
-                    int pedalValue = event.getPedalValue();
+                    int pedalValue = event.getValue();
                     mm = new ShortMessage();
                     mm.setMessage(ShortMessage.CONTROL_CHANGE, 64, pedalValue);
                     me = new MidiEvent(mm, (long) (event.getTimestamp() / (1000/50)));

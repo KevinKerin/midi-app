@@ -15,18 +15,19 @@ public class JSMidiEvent {
     @Column(name = "timestamp", nullable = false) private double timestamp;
     @Column(name = "velocity") private Double velocity;
     @OneToOne(cascade=CascadeType.ALL, targetEntity = Note.class, mappedBy = "jsMidiEvent") private Note note;
-    @Column(name = "pedalValue") private Integer pedalValue;
+    @OneToOne(cascade = CascadeType.ALL, targetEntity = Controller.class, mappedBy = "jsMidiEvent") private Controller controller;
+    @Column(name = "value") private Integer value;
 
     public void setSong(Song song) { this.song = song; }
 
     public Song getSong() { return song; }
 
-    public Integer getPedalValue() {
-        return pedalValue;
+    public Integer getValue() {
+        return value;
     }
 
-    public void setPedalValue(Integer pedalValue) {
-        this.pedalValue = pedalValue;
+    public void setValue(Integer pedalValue) {
+        this.value = pedalValue;
     }
 
     public Integer getChannel() {
@@ -61,6 +62,14 @@ public class JSMidiEvent {
         this.timestamp = timestamp;
     }
 
+    public Controller getController() {
+        return controller;
+    }
+
+    public void setController(Controller controller) {
+        this.controller = controller;
+    }
+
     public Note getNote() {
         return note;
     }
@@ -78,7 +87,7 @@ public class JSMidiEvent {
                 ", timestamp=" + timestamp +
                 ", velocity=" + velocity +
                 ", note=" + note +
-                ", pedalValue=" + pedalValue +
+                ", pedalValue=" + value +
                 '}';
     }
 }

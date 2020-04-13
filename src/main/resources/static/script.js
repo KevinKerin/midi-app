@@ -313,7 +313,7 @@ function resetSliders(){
 
 function clearOtherSelectTabs(selectedOption){
     resetSliders();
-    var options = ["major-chord", "minor-chord", "major-scale", "minor-scale"];
+    var options = ["major-chord", "minor-chord", "major-scale", "minor-scale", "saved-songs"];
     for (var i=0; i<options.length; i++){
         var currentSelection = document.getElementById(options[i]);
         console.log(currentSelection.id);
@@ -828,7 +828,7 @@ function saveRecording(){
         success: function(data){
             var savedSongsDropdown = document.getElementById("saved-songs");
             var newSong = document.createElement("option");
-            newSong.value = "1";
+            newSong.value = data;
             newSong.text = "Song ID " + newSong.value;
             savedSongsDropdown.add(newSong);
         }
@@ -848,6 +848,7 @@ function songSelect(selectedOption){
         }
     })
 
+    clearOtherSelectTabs("saved-songs");
 }
 
 function downloadRecording(){
