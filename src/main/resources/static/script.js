@@ -1,3 +1,4 @@
+var songsList =[];
 var synth = new Tone.AMSynth().toMaster();
 var recordingArray = [];
 var reversedRecordingArray = [];
@@ -78,13 +79,15 @@ WebMidi.enable(function () {
     console.log(WebMidi.inputs.length);
     console.log(WebMidi.outputs.length);
 
-   input = WebMidi.inputs[0];
-   output = WebMidi.outputs[0];
+    if(WebMidi.inputs.length > 0){
+        input = WebMidi.inputs[0];
+    }
 
-//    input = WebMidi.getInputById('1570184708');
-//    output = WebMidi.getOutputById('284624427');
-
-
+    if(WebMidi.outputs.length > 0){
+        output = WebMidi.outputs[0];
+    }
+    setupConnection();
+    displayConnections();
 
     console.log(input);
     console.log(output);
@@ -192,8 +195,40 @@ function deviceConnection(){
 }
 
 function displayConnections(){
-    document.getElementById("connected-input").innerHTML = input.name;
-    document.getElementById("connected-output").innerHTML = output.name;
+
+    if(input !== null){
+        document.getElementById("connected-input").innerHTML = input.manufacturer +  " " + input.name;
+    } else {
+        document.getElementById("connected-input").innerHTML = "N/A";
+    }
+
+    if(output !== null){
+        document.getElementById("connected-output").innerHTML = output.manufacturer +  " " + output.name;
+    } else {
+        document.getElementById("connected-output").innerHTML = "N/A";
+    }
+}
+
+function deviceDisconnection(){
+    input = null;
+    output = null;
+
+    var inputOptions = document.getElementById("input-connections");
+    var outputOptions = document.getElementById("output-connections");
+
+    var inputOutputOptions = ["input-connections", "output-connections"];
+
+    for (var i = 0; i < inputOutputOptions.length; i++){
+        var currentSelection = document.getElementById(inputOutputOptions[i]);
+        for (var j = 0; j < currentSelection.options.length; j++){
+            if (currentSelection.options[j].value === "default"){
+                currentSelection.selectedIndex = currentSelection.options[j];
+            }
+        }
+    }
+
+    displayConnections();
+
 }
 
 function showLog(){
@@ -816,29 +851,42 @@ function saveRecording(){
         type: "POST",
         contentType: "application/json",
         url: "/song/save",
+        headers: { 'X-Token': currentToken },
         data: JSON.stringify(song),
         success: function(data){
             var savedSongsDropdown = document.getElementById("saved-songs");
-            var newSong = document.createElement("option");
-            newSong.value = data;
-            newSong.text = "Song ID " + newSong.value;
-            savedSongsDropdown.add(newSong);
+            var newSongOption = document.createElement("option");
+            newSongOption.value = data["songId"];
+            newSongOption.text = "Song ID " + newSongOption.value;
+            savedSongsDropdown.add(newSongOption);
+            songsList.push(data);
         }
     })
 
 }
 
+function getSongById(songId){
+    for (var songIndex = 0; songIndex < songsList.length; songIndex++){
+        var currentSong = songsList[songIndex];
+        if(currentSong["songId"] == songId){
+            return currentSong;
+        }
+    }
+}
+
 function songSelect(selectedOption){
 
     var selectedSongId = selectedOption.value;
-    $.ajax({
-        type: "GET",
-        url: "/song/getSong/" + selectedSongId,
-        dataType: "json",
-        success: function(data){
-            recordingArray = data['jsMidiEventList'];
-        }
-    })
+    recordingArray = getSongById(selectedSongId)["jsMidiEventList"];
+    // $.ajax({
+    //     type: "GET",
+    //     url: "/song/getSong/" + selectedSongId,
+    //     headers: { 'X-Token': currentToken },
+    //     dataType: "json",
+    //     success: function(data){
+    //         recordingArray = data['jsMidiEventList'];
+    //     }
+    // });
 
     clearOtherSelectTabs("saved-songs");
 }
@@ -889,6 +937,33 @@ function downloadRecording(){
         }
     })
 }
+
+function populateSongsList(songData){
+    var savedSongs = document.getElementById("saved-songs");
+    for (var songIndex = 0; songIndex < songData.length; songIndex++){
+        var newOption = document.createElement("option");
+        newOption.id = songData[songIndex]["songId"];
+        newOption.value = songData[songIndex]["name"];
+        savedSongs.add(newOption);
+    }
+}
+
+$(document).ready(function() {
+    if(currentToken != null){
+        $.ajax({
+            type: "GET",
+            dataType: "application/json",
+            url: "/song/all",
+            headers: {"X-Token": currentToken },
+            success: function(data){
+                songsList = data;
+                populateSongsList(data);
+            }
+        })
+    }
+});
+
+
 
 // function trickOfTheLight(i){
 //     trickLyrics(i);
@@ -971,18 +1046,5 @@ function downloadRecording(){
 //
 // }
 
-function sleep(milliseconds) {
-  const date = Date.now();
-  let currentDate = null;
-  do {
-    currentDate = Date.now();
-  } while (currentDate - date < milliseconds);
-}
 
-function login(){
-    var loginData = {};
-    $.post( "/user/login", loginData)
-      .done(function( data ) {
-        alert( "Data Loaded: " + data );
-      });
-}
+

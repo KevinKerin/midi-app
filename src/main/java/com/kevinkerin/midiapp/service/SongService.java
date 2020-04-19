@@ -1,15 +1,14 @@
 package com.kevinkerin.midiapp.service;
 
+import com.kevinkerin.midiapp.dal.SessionRepository;
 import com.kevinkerin.midiapp.dal.SongRepository;
-import com.kevinkerin.midiapp.exception.ValidationException;
-import com.kevinkerin.midiapp.model.Controller;
-import com.kevinkerin.midiapp.model.JSMidiEvent;
-import com.kevinkerin.midiapp.model.Note;
-import com.kevinkerin.midiapp.model.Song;
+import com.kevinkerin.midiapp.dal.UserRepository;
+import com.kevinkerin.midiapp.exception.AuthorizationException;
+import com.kevinkerin.midiapp.exception.NotFoundException;
+import com.kevinkerin.midiapp.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.naming.ldap.Control;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -20,7 +19,15 @@ public class SongService {
     @Autowired
     private SongRepository songRepository;
 
-    public Song saveSong(Song song){
+    @Autowired
+    private SessionRepository sessionRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    public Song saveSong(Song song, String token){
+        Integer userId = getUserIdByToken(token);
+        song.setUserId(userId);
         song.setDate(new Date());
         List<JSMidiEvent> eventList = song.getJsMidiEventList();
         song.setJsMidiEventList(new ArrayList<>());
@@ -45,17 +52,38 @@ public class SongService {
         return songRepository.save(savedSong);
     }
 
-    public Song findSongBySongId(int id){
-        if (songRepository.findBySongId(id) != null){
-            System.out.println("Song exists");
-            System.out.println(songRepository.findBySongId(id).getJsMidiEventList());
+    public Song findSongBySongId(int id, String token){
+        Integer userId = getUserIdByToken(token);
+
+        Song song = songRepository.findBySongId(id);
+        if(song.getUserId() == userId){
+            return song;
+        } else {
+            throw new AuthorizationException("Access denied");
         }
-        return songRepository.findBySongId(id);
     }
 
-    public List<Song> findSongsByUserId(int userId){
-        List<Song> results = new ArrayList<>();
+    public List<Song> findSongsByUserId(String token){
+        Integer userId = getUserIdByToken(token);
         return songRepository.findByUserId(userId);
+    }
+
+    private Integer getUserIdByToken(String token){
+        Session session = sessionRepository.findByToken(token);
+        if (session == null){
+            throw new AuthorizationException("Access denied");
+        }
+        if(session.getUserId() == null){
+            throw new AuthorizationException("Access denied");
+        }
+        long currentTimeInSeconds = new Date().getTime() / 1000L;
+        if(currentTimeInSeconds > session.getExpiry()){
+            throw new AuthorizationException("Session expired");
+        }
+        if (userRepository.findByUserId(session.getUserId()) == null){
+            throw new NotFoundException("User not found");
+        }
+        return session.getUserId();
     }
 
 }

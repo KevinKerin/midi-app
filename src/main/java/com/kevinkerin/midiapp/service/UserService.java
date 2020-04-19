@@ -1,10 +1,12 @@
 package com.kevinkerin.midiapp.service;
 
+import com.kevinkerin.midiapp.dal.SessionRepository;
 import com.kevinkerin.midiapp.dal.UserRepository;
 import com.kevinkerin.midiapp.dto.TokenDTO;
 import com.kevinkerin.midiapp.dto.UserOutputDTO;
 import com.kevinkerin.midiapp.dto.UserRegistrationDTO;
 import com.kevinkerin.midiapp.exception.LoginException;
+import com.kevinkerin.midiapp.exception.NotFoundException;
 import com.kevinkerin.midiapp.exception.ValidationException;
 import com.kevinkerin.midiapp.model.LoginDetails;
 import com.kevinkerin.midiapp.model.Session;
@@ -24,10 +26,11 @@ import java.util.UUID;
 @Service
 public class UserService {
 
-    public static List<User> userList = new ArrayList<>();
-
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private SessionRepository sessionRepository;
 
     public UserOutputDTO createUser(UserRegistrationDTO userRegistrationDTO) throws NoSuchAlgorithmException {
         if(userRegistrationDTO == null){
@@ -67,6 +70,9 @@ public class UserService {
     }
 
     private UserOutputDTO convertOutputDTO(User user){
+        if(user == null){
+            return null;
+        }
         UserOutputDTO userOutputDTO = new UserOutputDTO();
         userOutputDTO.setFirstName(user.getFirstName());
         userOutputDTO.setLastName(user.getLastName());
@@ -92,12 +98,12 @@ public class UserService {
         return hexString.toString();
     }
 
-    public User findUserByUserId(int id){
-        return userRepository.findByUserId(id);
+    public UserOutputDTO findUserByUserId(int id){
+        return convertOutputDTO(userRepository.findByUserId(id));
     }
 
-    public User findUserByUsername(String username){
-        return userRepository.findByUsername(username);
+    public UserOutputDTO findUserByUsername(String username){
+        return convertOutputDTO(userRepository.findByUsername(username));
     }
 
     public TokenDTO loginUser(LoginDetails loginDetails) throws NoSuchAlgorithmException {
@@ -109,9 +115,10 @@ public class UserService {
                 Session session = new Session();
                 session.setUserId(user.getUserId());
                 session.setToken(UUID.randomUUID().toString());
-                session.setExpiry((new Date()).getTime() / 1000L);
+                session.setExpiry(((new Date()).getTime() / 1000L) + 604800);
                 TokenDTO tokenDTO = new TokenDTO();
                 tokenDTO.setToken(session.getToken());
+                sessionRepository.save(session);
                 return tokenDTO;
             } else {
                 throw new LoginException("Incorrect password");
@@ -122,5 +129,18 @@ public class UserService {
     public User findUserByEmail(String email){
         return userRepository.findByEmail(email);
     }
+
+    public Session findSessionByToken(String token){
+        return sessionRepository.findByToken(token);
+    }
+
+    public void deleteSessionByToken(String token){
+        Session session = sessionRepository.findByToken(token);
+        if(session == null){
+            return;
+        }
+        sessionRepository.delete(session);
+    }
+
 
 }

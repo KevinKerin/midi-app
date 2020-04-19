@@ -13,7 +13,7 @@ public class Session {
     @GeneratedValue
     private long id;
     private String token;
-    private int userId;
+    private Integer userId;
     private long expiry;
 
     public long getId() {
@@ -32,11 +32,11 @@ public class Session {
         this.token = token;
     }
 
-    public int getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 

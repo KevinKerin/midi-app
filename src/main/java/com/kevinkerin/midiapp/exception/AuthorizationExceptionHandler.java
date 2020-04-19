@@ -8,10 +8,10 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
-public class LoginExceptionHandler extends ResponseEntityExceptionHandler {
+public class AuthorizationExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler (LoginException.class)
-    public ResponseEntity<ExceptionResponse> handleLoginException(RuntimeException re, WebRequest wr){
+    @ExceptionHandler (AuthorizationException.class)
+    public ResponseEntity<ExceptionResponse> handleAuthorizationException(RuntimeException re, WebRequest wr){
         ExceptionResponse response = new ExceptionResponse(LoginException.class.getName(), re.getMessage());
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
