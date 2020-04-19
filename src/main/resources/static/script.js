@@ -17,7 +17,8 @@ var currentSpeed = 1;
 var currentOctaveContainer = document.getElementById("current-octave");
 var currentKeyContainer = document.getElementById("current-key");
 var currentSpeedContainer = document.getElementById("current-speed");
-
+var currentToken = localStorage.getItem("token");
+console.log("Token = " + currentToken);
 createNoteList(notesList);
 var onscreenKeyboardAudio = true;
 var selectedPreset=_tone_0000_Aspirin_sf2_file;
@@ -28,15 +29,6 @@ player.adjustPreset(audioContext,selectedPreset);
 function startWaveTableNow(pitch) {
     var audioBufferSourceNode = player.queueWaveTable(audioContext, audioContext.destination, selectedPreset, audioContext.currentTime + 0, pitch, 1.0);
 }
-
-// Current speed is 1, desired speed 1.1, increase of 0.1.
-// changeSpeed( 1 + (desiredSpeed-currentSpeed))?
-// current speed 1.1, desired speed 1.2... increase by 0.1 - changeSpeed(1 + (0.1))
-// current speed 0.9, desired speed 1.4... increase of 0.5 - changeSpeed(1+ (0.5))
-// current speed 1.3, desired speed 1.2... decrease of 0.1 - changeSpeed(1 + (-0.1))
-//
-//
-// d
 
 currentOctaveContainer.innerHTML = octaveSlider.value;
 octaveSlider.oninput = function() {

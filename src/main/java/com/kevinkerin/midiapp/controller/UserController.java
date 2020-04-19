@@ -1,5 +1,6 @@
 package com.kevinkerin.midiapp.controller;
 
+import com.kevinkerin.midiapp.dto.TokenDTO;
 import com.kevinkerin.midiapp.dto.UserOutputDTO;
 import com.kevinkerin.midiapp.dto.UserRegistrationDTO;
 import com.kevinkerin.midiapp.model.LoginDetails;
@@ -18,7 +19,7 @@ public class UserController {
     UserService userService;
 
     @PostMapping("/login")
-    public UserOutputDTO login(@RequestBody LoginDetails loginDetails) throws NoSuchAlgorithmException {
+    public TokenDTO login(@RequestBody LoginDetails loginDetails) throws NoSuchAlgorithmException {
         return userService.loginUser(loginDetails);
     }
 

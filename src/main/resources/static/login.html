@@ -12,6 +12,7 @@
 </body>
 
 <script>
+
     function login(){
         var username = document.getElementById("username").value;
         var password = document.getElementById("password").value;
@@ -35,12 +36,10 @@
                 data: JSON.stringify(loginDetails),
                 contentType: "application/json",
                 success: function(data) {
-                    console.log("Data = " + data);
-                    alert("Login successful. Welcome " + data + "!");
+                    localStorage.setItem("token", data['token']);
                     window.location.replace("index.html");
                 },
                 error: function(textStatus, errorThrown) {
-                    console.log(JSON.stringify(user));
                     console.log(textStatus);
                     console.log(errorThrown);
                     alert(textStatus.responseJSON.message);

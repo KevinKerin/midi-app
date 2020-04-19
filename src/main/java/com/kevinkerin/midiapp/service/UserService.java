@@ -1,6 +1,7 @@
 package com.kevinkerin.midiapp.service;
 
 import com.kevinkerin.midiapp.dal.UserRepository;
+import com.kevinkerin.midiapp.dto.TokenDTO;
 import com.kevinkerin.midiapp.dto.UserOutputDTO;
 import com.kevinkerin.midiapp.dto.UserRegistrationDTO;
 import com.kevinkerin.midiapp.exception.LoginException;
@@ -16,7 +17,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -97,13 +100,19 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public UserOutputDTO loginUser(LoginDetails loginDetails) throws NoSuchAlgorithmException {
+    public TokenDTO loginUser(LoginDetails loginDetails) throws NoSuchAlgorithmException {
         User user = userRepository.findByUsername(loginDetails.getUsername());
         if (user == null) {
             throw new LoginException("Username not found");
         } else {
             if (hashPassword(loginDetails.getPassword()).equals(user.getPassword())){
-                return convertOutputDTO(user);
+                Session session = new Session();
+                session.setUserId(user.getUserId());
+                session.setToken(UUID.randomUUID().toString());
+                session.setExpiry((new Date()).getTime() / 1000L);
+                TokenDTO tokenDTO = new TokenDTO();
+                tokenDTO.setToken(session.getToken());
+                return tokenDTO;
             } else {
                 throw new LoginException("Incorrect password");
             }

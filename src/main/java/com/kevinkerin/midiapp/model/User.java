@@ -13,6 +13,14 @@ public class User {
     @Column(name = "username", nullable = false) private String username;
     @Column(name = "password", nullable = false) private String password;
 
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
     public String getFirstName() {
         return firstName;
     }
