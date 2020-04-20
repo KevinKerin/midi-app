@@ -31,6 +31,12 @@ function startWaveTableNow(pitch) {
     var audioBufferSourceNode = player.queueWaveTable(audioContext, audioContext.destination, selectedPreset, audioContext.currentTime + 0, pitch, 1.0);
 }
 
+if(localStorage.getItem("token") !== null){
+
+}
+
+var songNameInput = document.getElementById("song-name-input");
+
 currentOctaveContainer.innerHTML = octaveSlider.value;
 octaveSlider.oninput = function() {
     currentOctaveContainer.innerHTML = this.value;
@@ -103,7 +109,7 @@ WebMidi.enable(function () {
     document.getElementById('soften').addEventListener('click', function() {changeVelocity(0.9)});
     document.getElementById('reverse-recording').addEventListener('click', function() {reverseRecording()});
     document.getElementById('onscreen-keyboard-audio-toggle').addEventListener('click', onscreenKeyboardAudioToggle);
-    document.getElementById('save-recording').addEventListener('click', function() {saveRecording()});
+    document.getElementById('save-recording').addEventListener('click', function() {saveRecording(document.getElementById('song-name-input').value)});
     document.getElementById('download-recording').addEventListener('click', function() {downloadRecording()});
     document.addEventListener('keypress', keyboardListener);
     input.addListener('noteon', "all", function(e) {noteOn(e, recordingArray, isRecording)});
@@ -319,6 +325,9 @@ function setKeyMap(){
 }
 
 function keyboardListener(key){
+    if(songNameInput === document.activeElement){
+        return;
+    }
     console.log("Keyboard listener");
     try{
         var note = keyMap.get(key.code);
@@ -840,10 +849,15 @@ function getMIDIMessage(message) {
 //
 //}
 
-function saveRecording(){
+function saveRecording(songName){
+
+    if(songName.trim().length == 0){
+        alert("Song name must not be blank");
+        return;
+    }
 
     var song = {
-        "songName" : "Johnny Jump Up",
+        "songName" : songName,
         "jsMidiEventList" : recordingArray
     };
 
@@ -943,29 +957,12 @@ function populateSongsList(songData){
     for (var songIndex = 0; songIndex < songData.length; songIndex++){
         console.log(songData[songIndex]);
         var newOption = document.createElement("option");
-        newOption.id = songData[songIndex]["songId"];
-        newOption.value = songData[songIndex]["name"];
+        newOption.value = songData[songIndex]["songId"];
+        newOption.innerHTML = songData[songIndex]["songName"];
+        console.log(songData[songIndex]["songName"]);
         savedSongs.add(newOption);
     }
 }
-
-// $(document).ready(function() {
-//     if(currentToken != null){
-//         $.ajax({
-//             type: "GET",
-//             dataType: "application/json",
-//             url: "/song/all",
-//             headers: {'X-Token' : currentToken},
-//             success: function(data){
-//                 console.log("Data:");
-//                 console.log(data);
-//                 songsList = data;
-//                 console.log(songsList);
-//                 populateSongsList(data);
-//             }
-//         })
-//     }
-// });
 
 (function() {
     if(currentToken != null){
@@ -987,12 +984,19 @@ function populateSongsList(songData){
                 console.log("Error in ajax request");
                 console.log(data);
             }
-        }).done(function(data){
-            console.log("Data:");
-            console.log(data);
-            songsList = data;
-            console.log(songsList);
-            populateSongsList(data);
+        });
+        $.ajax({
+            method: 'GET',
+            url: 'user/info',
+            headers: {
+                'X-Token' : localStorage.getItem("token")
+            },
+            dataType: 'JSON',
+            success: function(data){
+                console.log("Data:");
+                console.log(data);
+                document.getElementById('name-if-logged-in').innerHTML = data['firstName'] + " " + data['lastName'];
+            }
         });
     }
 })();

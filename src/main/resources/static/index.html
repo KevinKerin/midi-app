@@ -158,7 +158,7 @@
 </head>
 <body>
 <img src="logo.png" alt="" id="logo">
-<p>Logged in as Kevin Kerin</p>
+<p>Logged in as <span id="name-if-logged-in"></span></p>
 <a href="my-account.html" onclick="checkToken(currentToken)">My Account</a>
 <a href="">Logout</a>
 <a href="register.html">Register</a>
@@ -265,6 +265,7 @@
             <button id="start-recording">Start Recording</button>
             <button id="stop-recording">Stop Recording</button>
             <button id="save-recording">Save Recording</button>
+            <input type="text" placeholder="Song Name" id="song-name-input">
             <button id="clear-recording">Clear Recording</button>
             <div class="slidecontainer">
                 <p>Octave: <span id="current-octave"></span></p>
