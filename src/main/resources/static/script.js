@@ -941,6 +941,7 @@ function downloadRecording(){
 function populateSongsList(songData){
     var savedSongs = document.getElementById("saved-songs");
     for (var songIndex = 0; songIndex < songData.length; songIndex++){
+        console.log(songData[songIndex]);
         var newOption = document.createElement("option");
         newOption.id = songData[songIndex]["songId"];
         newOption.value = songData[songIndex]["name"];
@@ -948,22 +949,55 @@ function populateSongsList(songData){
     }
 }
 
-$(document).ready(function() {
+// $(document).ready(function() {
+//     if(currentToken != null){
+//         $.ajax({
+//             type: "GET",
+//             dataType: "application/json",
+//             url: "/song/all",
+//             headers: {'X-Token' : currentToken},
+//             success: function(data){
+//                 console.log("Data:");
+//                 console.log(data);
+//                 songsList = data;
+//                 console.log(songsList);
+//                 populateSongsList(data);
+//             }
+//         })
+//     }
+// });
+
+(function() {
     if(currentToken != null){
         $.ajax({
-            type: "GET",
-            dataType: "application/json",
-            url: "/song/all",
-            headers: {"X-Token": currentToken },
+            method: 'GET',
+            url: '/song/all',
+            headers: {
+                'X-Token' : localStorage.getItem("token")
+            },
+            dataType: 'JSON',
             success: function(data){
+                console.log("Data:");
+                console.log(data);
                 songsList = data;
+                console.log(songsList);
                 populateSongsList(data);
+            },
+            error: function(data){
+                console.log("Error in ajax request");
+                console.log(data);
             }
-        })
+        }).done(function(data){
+            console.log("Data:");
+            console.log(data);
+            songsList = data;
+            console.log(songsList);
+            populateSongsList(data);
+        });
     }
-});
+})();
 
-
+$.ajax({url: '/'}).done(function(data) {});
 
 // function trickOfTheLight(i){
 //     trickLyrics(i);

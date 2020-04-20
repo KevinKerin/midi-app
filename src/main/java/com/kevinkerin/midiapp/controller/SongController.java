@@ -31,7 +31,7 @@ public class SongController {
         return song;
     }
 
-    @GetMapping("/all")
+    @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Song> getUserSongs(@RequestHeader("X-Token") String token) {
         List<Song> songList = songService.findSongsByUserId(token);
         for (Song song : songList){
