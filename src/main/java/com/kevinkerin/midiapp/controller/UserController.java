@@ -1,9 +1,6 @@
 package com.kevinkerin.midiapp.controller;
 
-import com.kevinkerin.midiapp.dto.TokenDTO;
-import com.kevinkerin.midiapp.dto.UserOutputDTO;
-import com.kevinkerin.midiapp.dto.UserRegistrationDTO;
-import com.kevinkerin.midiapp.dto.UserUpdateDTO;
+import com.kevinkerin.midiapp.dto.*;
 import com.kevinkerin.midiapp.exception.AuthorizationException;
 import com.kevinkerin.midiapp.model.LoginDetails;
 import com.kevinkerin.midiapp.model.Session;
@@ -57,8 +54,13 @@ public class UserController {
     }
 
     @PostMapping("/update")
-    public UserOutputDTO updateUserDetails(@RequestHeader ("X-Token") String token, @RequestBody UserUpdateDTO updatedUser) throws NoSuchAlgorithmException {
-        return userService.updateUserDetails(updatedUser, token);
+    public UserOutputDTO updateUserDetails(@RequestHeader ("X-Token") String token, @RequestBody UserUpdateDTO userUpdateDTO) throws NoSuchAlgorithmException {
+        return userService.updateUserDetails(userUpdateDTO, token);
+    }
+
+    @PostMapping("/changepassword")
+    public UserOutputDTO updateUserPassword(@RequestHeader ("X-Token") String token, @RequestBody PasswordUpdateDTO passwordUpdateDTO) throws NoSuchAlgorithmException {
+        return userService.changePassword(passwordUpdateDTO, token);
     }
 
 }

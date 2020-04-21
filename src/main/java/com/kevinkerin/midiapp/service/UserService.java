@@ -2,10 +2,7 @@ package com.kevinkerin.midiapp.service;
 
 import com.kevinkerin.midiapp.dal.SessionRepository;
 import com.kevinkerin.midiapp.dal.UserRepository;
-import com.kevinkerin.midiapp.dto.TokenDTO;
-import com.kevinkerin.midiapp.dto.UserOutputDTO;
-import com.kevinkerin.midiapp.dto.UserRegistrationDTO;
-import com.kevinkerin.midiapp.dto.UserUpdateDTO;
+import com.kevinkerin.midiapp.dto.*;
 import com.kevinkerin.midiapp.exception.AuthorizationException;
 import com.kevinkerin.midiapp.exception.LoginException;
 import com.kevinkerin.midiapp.exception.NotFoundException;
@@ -148,6 +145,31 @@ public class UserService {
         }
         user.setFirstName(userUpdateDTO.getFirstName());
         user.setLastName(userUpdateDTO.getLastName());
+        userRepository.save(user);
+        return convertOutputDTO(user);
+    }
+
+    public UserOutputDTO changePassword(PasswordUpdateDTO passwordUpdateDTO, String token) throws NoSuchAlgorithmException {
+        if(passwordUpdateDTO == null){
+            throw new ValidationException("PasswordUpdateDTO is null");
+        }
+        if(StringUtils.isEmpty(passwordUpdateDTO.getCurrentPassword())){
+            throw new ValidationException("Current password field empty");
+        } else if(StringUtils.isEmpty(passwordUpdateDTO.getNewPassword())){
+            throw new ValidationException("New password field empty");
+        } else if(StringUtils.isEmpty(passwordUpdateDTO.getNewPasswordConfirm())){
+            throw new ValidationException("Confirm new password field empty");
+        } else if(!passwordUpdateDTO.getNewPassword().equals(passwordUpdateDTO.getNewPasswordConfirm())){
+            throw new ValidationException("Passwords don't match");
+        }
+
+        Session session = sessionRepository.findByToken(token);
+
+        User user = userRepository.findByUserId(session.getUserId());
+        if(!hashPassword(passwordUpdateDTO.getCurrentPassword()).equals(user.getPassword())){
+            throw new AuthorizationException("Incorrect password");
+        }
+        user.setPassword(hashPassword(passwordUpdateDTO.getNewPasswordConfirm()));
         userRepository.save(user);
         return convertOutputDTO(user);
     }

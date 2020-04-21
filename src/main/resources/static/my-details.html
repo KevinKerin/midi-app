@@ -7,7 +7,7 @@
 </head>
 <body>
 
-    <form>
+    <div>
         <label for="first-name">First name:</label><br>
         <input type="text" id="first-name" name="first-name"><br>
         <label for="last-name">Last name:</label><br>
@@ -19,7 +19,9 @@
         <label for="password">Password:</label><br>
         <input type="password" id="password" name="password"><br>
         <input type="submit" value="Submit" onclick="submitUserChanges()">
-    </form>
+    </div>
+
+    <a href="change-password.html">Change Password</a>
 
     <script>
 
@@ -56,23 +58,22 @@
 
             $.ajax({
                 type: 'POST',
-                url: 'http://localhost:8000/user/update',
+                url: '/user/update',
                 headers: {
                     'X-Token' : localStorage.getItem('token')
                 },
                 data: JSON.stringify(updatedUserDetails),
                 contentType: 'application/json',
                 success: function(data){
-                    console.log("Request successful");
+                    alert("Details successfully updated");
                     console.log(data);
+                    window.location.replace('index.html');
                 },
                 error: function(data){
-                    console.log("Request failed");
+                    alert(data['responseJSON']['message']);
                     console.log(data);
                 }
             });
-
-            console.log("Blah");
         }
 
     </script>
