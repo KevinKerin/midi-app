@@ -13,7 +13,7 @@ public class Song {
     @Column(name = "userId", nullable = false) private int userId;
     @Column(name = "songName", nullable = false) private String songName;
     @Column(name = "date", nullable = false) private Date date;
-    @Column(name = "length", nullable = false) private int songLength;
+    @Column(name = "length", nullable = false) private long songLength;
     @OneToMany(
             targetEntity = JSMidiEvent.class,
             mappedBy = "song",
@@ -49,12 +49,12 @@ public class Song {
         this.songName = songName;
         this.date = new Date();
         this.userId = userId;
-        this.songLength = this.jsMidiEventList.size();
     }
 
-    public int getSongLength(){
-//        return jsMidiEventList.size();
-        return this.songLength;
+    public long getSongLength(){
+        double firstTimestamp = jsMidiEventList.get(0).getTimestamp();
+        double lastTimestamp = jsMidiEventList.get(jsMidiEventList.size()-1).getTimestamp();
+        return Math.round(lastTimestamp - firstTimestamp);
     }
 
     public int getSongId() {

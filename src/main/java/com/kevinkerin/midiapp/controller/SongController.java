@@ -43,4 +43,9 @@ public class SongController {
         return songList;
     }
 
+    @GetMapping(value = "/delete/{songId}")
+    public void deleteSong(@PathVariable int songId, @RequestHeader("X-Token") String token){
+        songService.deleteSongBySongId(songId, token);
+    }
+
 }

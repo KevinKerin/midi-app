@@ -6,7 +6,95 @@
 </head>
 <body>
 
+    <table id="saved-songs-table">
+        <tr>
+            <th>Song Name</th>
+            <th>Date Created</th>
+            <th>Song Length</th>
+            <th></th>
+        </tr>
+    </table>
 
+    <a href="my-details.html">My Personal Details</a>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script>
+        (function() {
+            if(localStorage.getItem("token") != null){
+                $.ajax({
+                    method: 'GET',
+                    url: '/song/all',
+                    headers: {
+                        'X-Token' : localStorage.getItem("token")
+                    },
+                    dataType: 'JSON',
+                    success: function(data){
+                        console.log("Data:");
+                        console.log(data);
+                        songsList = data;
+                        console.log(songsList);
+                        populateSongsTable(data);
+                    },
+                    error: function(data){
+                        console.log("Error in ajax request");
+                        console.log(data);
+                    }
+                });
+                $.ajax({
+                    method: 'GET',
+                    url: 'user/info',
+                    headers: {
+                        'X-Token' : localStorage.getItem("token")
+                    },
+                    dataType: 'JSON',
+                    success: function(data){
+                        console.log("Data:");
+                        console.log(data);
+                    }
+                });
+            }
+        })();
+
+        function populateSongsTable(songList)
+        {
+            var savedSongsTable = document.getElementById('saved-songs-table');
+            for (var savedSongs = 0; savedSongs < songList.length; savedSongs++){
+                var currentSong = songList[savedSongs];
+                var row = savedSongsTable.insertRow(1);
+                row.insertCell(0).innerHTML = currentSong['songName'];
+                row.insertCell(1).innerHTML = currentSong['date'];
+                row.insertCell(2).innerHTML = currentSong['songLength'];
+                var deleteButton = document.createElement("BUTTON");
+                deleteButton.innerHTML = "Delete";
+                deleteButton.onclick = function(){
+                    deleteSong(currentSong);
+                }
+                row.insertCell(3).appendChild(deleteButton);
+
+            }
+        }
+
+        function deleteSong(song){
+            var songId = song['songId'];
+            $.ajax({
+                method: 'GET',
+                url: '/song/delete/' + songId,
+                headers: {
+                    'X-Token' : localStorage.getItem("token")
+                },
+                // dataType: 'JSON',
+                success: function(data){
+                    alert("Song deleted");
+                    console.log(data);
+                    window.location.replace("my-account.html");
+                },
+                error: function(data){
+                    console.log(data);
+                }
+            });
+        }
+
+    </script>
 
 </body>
 </html>

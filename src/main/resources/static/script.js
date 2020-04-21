@@ -28,7 +28,9 @@ var audioContext = new AudioContextFunc();
 var player=new WebAudioFontPlayer();
 player.adjustPreset(audioContext,selectedPreset);
 function startWaveTableNow(pitch) {
-    var audioBufferSourceNode = player.queueWaveTable(audioContext, audioContext.destination, selectedPreset, audioContext.currentTime + 0, pitch, 1.0);
+    if(onscreenKeyboardAudio){
+        var audioBufferSourceNode = player.queueWaveTable(audioContext, audioContext.destination, selectedPreset, audioContext.currentTime + 0, pitch, 1.0);
+    }
 }
 
 if(localStorage.getItem("token") !== null){
@@ -964,6 +966,25 @@ function populateSongsList(songData){
     }
 }
 
+function logout(){
+    $.ajax({
+        method: 'GET',
+        url: '/user/logout',
+        headers: {
+            'X-Token' : localStorage.getItem("token")
+        },
+        // dataType: 'JSON',
+        success: function(data){
+            console.log("Data:");
+            console.log(data);
+        },
+        error: function(data){
+            console.log("Error in request");
+            console.log(data);
+        }
+    });
+}
+
 (function() {
     if(currentToken != null){
         $.ajax({
@@ -1001,7 +1022,6 @@ function populateSongsList(songData){
     }
 })();
 
-$.ajax({url: '/'}).done(function(data) {});
 
 // function trickOfTheLight(i){
 //     trickLyrics(i);

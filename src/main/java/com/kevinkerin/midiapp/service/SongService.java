@@ -86,4 +86,16 @@ public class SongService {
         return session.getUserId();
     }
 
+    public void deleteSongBySongId(Integer songId, String token){
+        Session session = sessionRepository.findByToken(token);
+        if(session == null){
+            return;
+        }
+        Integer userId = session.getUserId();
+        Song song = findSongBySongId(songId, token);
+        if(song.getUserId() == userId){
+            songRepository.delete(song);
+        }
+    }
+
 }
