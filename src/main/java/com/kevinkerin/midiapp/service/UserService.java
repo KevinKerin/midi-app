@@ -5,6 +5,8 @@ import com.kevinkerin.midiapp.dal.UserRepository;
 import com.kevinkerin.midiapp.dto.TokenDTO;
 import com.kevinkerin.midiapp.dto.UserOutputDTO;
 import com.kevinkerin.midiapp.dto.UserRegistrationDTO;
+import com.kevinkerin.midiapp.dto.UserUpdateDTO;
+import com.kevinkerin.midiapp.exception.AuthorizationException;
 import com.kevinkerin.midiapp.exception.LoginException;
 import com.kevinkerin.midiapp.exception.NotFoundException;
 import com.kevinkerin.midiapp.exception.ValidationException;
@@ -14,8 +16,6 @@ import com.kevinkerin.midiapp.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -126,6 +126,30 @@ public class UserService {
                 throw new LoginException("Incorrect password");
             }
         }
+    }
+
+    public UserOutputDTO updateUserDetails(UserUpdateDTO userUpdateDTO, String token) throws NoSuchAlgorithmException {
+        if(userUpdateDTO == null){
+            throw new ValidationException("Updated user is null");
+        }
+        if(StringUtils.isEmpty(userUpdateDTO.getFirstName())){
+            throw new ValidationException("First name field is empty");
+        } else if(StringUtils.isEmpty(userUpdateDTO.getLastName())){
+            throw new ValidationException("Last name field is empty");
+        } else if(StringUtils.isEmpty(userUpdateDTO.getPassword())){
+            throw new ValidationException("Password field is empty");
+        }
+
+        Session session = sessionRepository.findByToken(token);
+
+        User user = userRepository.findByUserId(session.getUserId());
+        if(!hashPassword(userUpdateDTO.getPassword()).equals(user.getPassword())){
+            throw new AuthorizationException("Incorrect password");
+        }
+        user.setFirstName(userUpdateDTO.getFirstName());
+        user.setLastName(userUpdateDTO.getLastName());
+        userRepository.save(user);
+        return convertOutputDTO(user);
     }
 
     public User findUserByEmail(String email){

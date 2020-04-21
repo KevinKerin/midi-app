@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Details</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+<body>
+
+    <form>
+        <label for="first-name">First name:</label><br>
+        <input type="text" id="first-name" name="first-name"><br>
+        <label for="last-name">Last name:</label><br>
+        <input type="text" id="last-name" name="last-name"><br>
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="username" readonly><br>
+        <label for="email">Email:</label><br>
+        <input type="text" id="email" name="email" readonly><br>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password"><br>
+        <input type="submit" value="Submit" onclick="submitUserChanges()">
+    </form>
+
+    <script>
+
+        (function() {
+            if(localStorage.getItem("token") != null){
+                $.ajax({
+                    method: 'GET',
+                    url: 'user/info',
+                    headers: {
+                        'X-Token' : localStorage.getItem("token")
+                    },
+                    dataType: 'JSON',
+                    success: function(data){
+                        populateForm(data);
+                    }
+                });
+            }
+        })();
+
+        function populateForm(user){
+            document.getElementById('first-name').value = user['firstName'];
+            document.getElementById('last-name').value = user['lastName'];
+            document.getElementById('username').value = user['username'];
+            document.getElementById('email').value = user['email'];
+        }
+
+        function submitUserChanges(){
+
+            var updatedUserDetails = {
+                'firstName' : document.getElementById('first-name').value,
+                'lastName' : document.getElementById('last-name').value,
+                'password' : document.getElementById('password').value
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8000/user/update',
+                headers: {
+                    'X-Token' : localStorage.getItem('token')
+                },
+                data: JSON.stringify(updatedUserDetails),
+                contentType: 'application/json',
+                success: function(data){
+                    console.log("Request successful");
+                    console.log(data);
+                },
+                error: function(data){
+                    console.log("Request failed");
+                    console.log(data);
+                }
+            });
+
+            console.log("Blah");
+        }
+
+    </script>
+</body>
+</html>
