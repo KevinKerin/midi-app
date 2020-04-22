@@ -190,5 +190,10 @@ public class UserService {
         sessionRepository.delete(session);
     }
 
+    public void deleteUserByUserId(Integer userId){
+        User user = userRepository.findByUserId(userId);
+        userRepository.delete(user);
+    }
+
 
 }

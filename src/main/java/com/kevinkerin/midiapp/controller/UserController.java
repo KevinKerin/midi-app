@@ -63,4 +63,16 @@ public class UserController {
         return userService.changePassword(passwordUpdateDTO, token);
     }
 
+    @GetMapping("/session")
+    public Session checkValidSession(@RequestHeader ("X-Token") String token){
+        return userService.findSessionByToken(token);
+    }
+
+    @GetMapping("/delete")
+    public void deleteUser(@RequestHeader("X-Token") String token){
+        Integer userId = userService.findSessionByToken(token).getUserId();
+        userService.deleteSessionByToken(token);
+        userService.deleteUserByUserId(userId);
+    }
+
 }

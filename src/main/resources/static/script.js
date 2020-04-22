@@ -4,6 +4,8 @@ var recordingArray = [];
 var reversedRecordingArray = [];
 var keyMap;
 var keyboardMap;
+var userLoggedIn;
+checkUserLoggedIn();
 var input;
 var output;
 var isRecording = false;
@@ -32,6 +34,50 @@ function startWaveTableNow(pitch) {
         var audioBufferSourceNode = player.queueWaveTable(audioContext, audioContext.destination, selectedPreset, audioContext.currentTime + 0, pitch, 1.0);
     }
 }
+
+function checkUserLoggedIn(){
+    var loggedIn = document.getElementById('logged-in-p');
+    var myAccount = document.getElementById('my-account-a');
+    var logout = document.getElementById('logout-a');
+    var register = document.getElementById('register-a');
+    var login = document.getElementById('login-a');
+    $.ajax({
+        method: 'GET',
+        url: '/user/session',
+        headers: {
+            'X-Token' : localStorage.getItem('token')
+        },
+        // dataType : 'JSON',
+        success: function(data){
+            if(data['token'] != null){
+                console.log(data);
+                userLoggedIn = true;
+                console.log(userLoggedIn);
+                console.log("User is logged in");
+                loggedIn.style.display = 'block';
+                myAccount.style.display = 'block';
+                logout.style.display = 'block';
+                register.style.display = 'none';
+                login.style.display = 'none';
+            } else {
+                userLoggedIn = false;
+                console.log(userLoggedIn);
+                console.log("User is not logged in");
+                loggedIn.style.display = 'none';
+                myAccount.style.display = 'none';
+                logout.style.display = 'none';
+                register.style.display = 'block';
+                login.style.display = 'block';
+            }
+
+
+        },
+
+    });
+
+    return userLoggedIn;
+}
+
 
 if(localStorage.getItem("token") !== null){
 
@@ -95,7 +141,7 @@ WebMidi.enable(function () {
         output = WebMidi.outputs[0];
     }
     setupConnection();
-    displayConnections();
+    // displayConnections();
 
     console.log(input);
     console.log(output);
@@ -853,6 +899,11 @@ function getMIDIMessage(message) {
 
 function saveRecording(songName){
 
+    if(!checkUserLoggedIn()){
+        alert("Log in before saving any songs");
+        return;
+    }
+
     if(songName.trim().length == 0){
         alert("Song name must not be blank");
         return;
@@ -873,7 +924,7 @@ function saveRecording(songName){
             var savedSongsDropdown = document.getElementById("saved-songs");
             var newSongOption = document.createElement("option");
             newSongOption.value = data["songId"];
-            newSongOption.text = "Song ID " + newSongOption.value;
+            newSongOption.text = songName;
             savedSongsDropdown.add(newSongOption);
             songsList.push(data);
         }
@@ -966,24 +1017,42 @@ function populateSongsList(songData){
     }
 }
 
-function logout(){
+function deleteAccount(){
     $.ajax({
-        method: 'GET',
-        url: '/user/logout',
+        type: "GET",
+        url: "/user/delete",
         headers: {
             'X-Token' : localStorage.getItem("token")
         },
-        // dataType: 'JSON',
         success: function(data){
-            console.log("Data:");
+            alert("Your account has been deleted. We're sorry to see you go!");
             console.log(data);
+            window.location.replace("index.html");
         },
-        error: function(data){
-            console.log("Error in request");
+        error: function (data) {
             console.log(data);
         }
-    });
+    })
 }
+
+// function logout(){
+//     $.ajax({
+//         method: 'GET',
+//         url: '/user/logout',
+//         headers: {
+//             'X-Token' : localStorage.getItem("token")
+//         },
+//         // dataType: 'JSON',
+//         success: function(data){
+//             console.log("Data:");
+//             console.log(data);
+//         },
+//         error: function(data){
+//             console.log("Error in request");
+//             console.log(data);
+//         }
+//     });
+// }
 
 (function() {
     if(currentToken != null){
