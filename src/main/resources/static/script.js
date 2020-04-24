@@ -5,7 +5,6 @@ var reversedRecordingArray = [];
 var keyMap;
 var keyboardMap;
 var userLoggedIn;
-checkUserLoggedIn();
 var input;
 var output;
 var isRecording = false;
@@ -20,6 +19,7 @@ var currentSpeed = 1;
 var currentOctaveContainer = document.getElementById("current-octave");
 var currentKeyContainer = document.getElementById("current-key");
 var currentSpeedContainer = document.getElementById("current-speed");
+checkUserLoggedIn();
 var currentToken = localStorage.getItem("token");
 console.log("Token = " + currentToken);
 createNoteList(notesList);
@@ -34,13 +34,64 @@ function startWaveTableNow(pitch) {
         var audioBufferSourceNode = player.queueWaveTable(audioContext, audioContext.destination, selectedPreset, audioContext.currentTime + 0, pitch, 1.0);
     }
 }
+// <script>
+// if(checkUserLoggedIn()){
+//     document.getElementById("register-a").style.display = "none";
+//     document.getElementById("login-a").style.display = "none";
+// } else {
+//     document.getElementById("logged-in-p").style.display = "none";
+//     document.getElementById("my-account-a").style.display = "none";
+//     document.getElementById("logout-a").style.display = "none";
+// }
 
+// var navbarDiv = document.getElementById("navbar-div");
+// var loggedInAs = document.createElement("p");
+// loggedInAs.innerHTML = "test";
+// loggedInAs.classList.add("nav-item nav-link");
+// var myAccount = document.createElement("a");
+// var logout = document.createElement("a");
+// navbarDiv.append(loggedInAs);
+// navbarDiv.appendChild(myAccount);
+// navbarDiv.appendChild(logout);
+//
+// var testy = document.createElement("h1");
+// testy.innerHTML = "MASSIVE WRITING";
+// document.getElementById("test").appendChild(testy);
+//
+//
+//
+//
+// var loggedInAs = document.getElementById("logged-in-p");
+// var myAccount =  = document.getElementById("my-account-a");
+// var logout = document.getElementById("logout-a");
+// var register = document.getElementById("register-a");
+// var login = document.getElementById("login-a");
+// if(checkUserLoggedIn()){
+//     register.style.display = "none";
+//     login.style.display = "none";
+//     loggedInAs.style.display = "inline";
+//     myAccount.style.display = "inline";
+//     logout.style.display = "inline";
+// } else {
+//     loggedInAs.style.display = "none";
+//     myAccount.style.display = "none";
+//     logout.style.display = "none";
+//     register.style.display = "inline";
+//     login.style.display = "inline";
+// }
+
+
+
+
+
+// </script>
 function checkUserLoggedIn(){
     var loggedIn = document.getElementById('logged-in-p');
     var myAccount = document.getElementById('my-account-a');
     var logout = document.getElementById('logout-a');
     var register = document.getElementById('register-a');
     var login = document.getElementById('login-a');
+    var savedSongsDiv = document.getElementById('saved-songs-div');
     $.ajax({
         method: 'GET',
         url: '/user/session',
@@ -59,6 +110,7 @@ function checkUserLoggedIn(){
                 logout.style.display = 'block';
                 register.style.display = 'none';
                 login.style.display = 'none';
+                savedSongsDiv.style.display = 'block';
             } else {
                 userLoggedIn = false;
                 console.log(userLoggedIn);
@@ -68,6 +120,7 @@ function checkUserLoggedIn(){
                 logout.style.display = 'none';
                 register.style.display = 'block';
                 login.style.display = 'block';
+                savedSongsDiv.style.display = 'none';
             }
 
 
