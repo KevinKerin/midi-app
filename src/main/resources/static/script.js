@@ -13,12 +13,15 @@ var notesList = [];
 var octaveSlider = document.getElementById("octave-slider");
 var transposeSlider = document.getElementById("transpose-slider");
 var speedSlider = document.getElementById("speed-slider");
+var velocitySlider = document.getElementById("velocity-slider");
 var currentOctave = 0;
 var currentKey = 0;
 var currentSpeed = 1;
+var currentVelocity = 0;
 var currentOctaveContainer = document.getElementById("current-octave");
 var currentKeyContainer = document.getElementById("current-key");
 var currentSpeedContainer = document.getElementById("current-speed");
+var currentVelocityContainer = document.getElementById("current-velocity");
 checkUserLoggedIn();
 var currentToken = localStorage.getItem("token");
 console.log("Token = " + currentToken);
@@ -175,6 +178,17 @@ speedSlider.oninput = function() {
     currentSpeedContainer.innerHTML = this.value;
 }
 
+currentVelocityContainer.innerHTML = velocitySlider.value;
+velocitySlider.oninput = function() {
+    var velocity = parseFloat(this.value);
+    if(recordingArray.length > 0){
+        changeVelocity(velocity);
+        currentVelocity = this.value;
+    }
+    currentVelocityContainer.innerHTML = this.value;
+}
+
+
 
 WebMidi.enable(function () {
 
@@ -205,8 +219,6 @@ WebMidi.enable(function () {
     document.getElementById('start-recording').addEventListener('click', startRecording);
     document.getElementById('stop-recording').addEventListener('click', stopRecording);
     document.getElementById('clear-recording').addEventListener('click', clearRecording);
-    document.getElementById('harden').addEventListener('click', function() {changeVelocity(1.1)});
-    document.getElementById('soften').addEventListener('click', function() {changeVelocity(0.9)});
     document.getElementById('reverse-recording').addEventListener('click', function() {reverseRecording()});
     document.getElementById('onscreen-keyboard-audio-toggle').addEventListener('click', onscreenKeyboardAudioToggle);
     document.getElementById('save-recording').addEventListener('click', function() {saveRecording(document.getElementById('song-name-input').value)});
@@ -220,14 +232,6 @@ WebMidi.enable(function () {
             recordingArray.push(e);
         }
     });
-    // input.addListener('noteon', "all", function(e) {noteOn(e, recordingArray, isRecording)});
-    // input.addListener('noteoff', "all", function(e) {noteOff (e, recordingArray, isRecording)});
-    // input.addListener('controlchange', "all", function (e) {
-    //     if(isRecording){
-    //         console.log("Received 'controlchange' message.", e);
-    //             recordingArray.push(e);
-    //     }
-    // });
 
     input.addListener('songselect', 'all',
         function(e){
@@ -261,6 +265,22 @@ function findCurrentOctave(){
     currentOctaveContainer.innerHTML = octaveSlider.value;
 }
 
+function findCurrentVelocity(){
+    if(recordingArray.length > 0){
+        for (let i = 0; i < recordingArray.length; i++) {
+            var currentEvent = recordingArray[i];
+            if(currentEvent.type === "noteon"){
+                currentVelocity = currentEvent.velocity;
+                break;
+            }
+        }
+    } else {
+        currentVelocity = 0;
+    }
+    velocitySlider.value = currentVelocity;
+    currentVelocityContainer.innerHTML = velocitySlider.value;
+}
+
 function createNoteList(notesList){
     var noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
     for (var i = 0; i < 11; i++){
@@ -281,16 +301,17 @@ function setupConnection(){
     var outputSelect = document.getElementById("output-connections");
     for (var i = 0; i < WebMidi.inputs.length; i++){
         var option = document.createElement("option");
-        var optionText = WebMidi.inputs[i]._midiInput.manufacturer + " " + WebMidi.inputs[i]._midiInput.name;
+        var optionText = WebMidi.inputs[i]._midiInput.manufacturer;
         option.text = optionText;
         inputSelect.add(option);
     }
     for (var i = 0; i < WebMidi.outputs.length; i++){
         var option = document.createElement("option");
-        var optionText = WebMidi.outputs[i]._midiOutput.manufacturer + " " + WebMidi.outputs[i]._midiOutput.name;
+        var optionText = WebMidi.outputs[i]._midiOutput.manufacturer;
         option.text = optionText;
         outputSelect.add(option);
     }
+    displayConnections();
 }
 
 function deviceConnection(){
@@ -305,13 +326,13 @@ function displayConnections(){
     if(input !== null){
         document.getElementById("connected-input").innerHTML = input.manufacturer +  " " + input.name;
     } else {
-        document.getElementById("connected-input").innerHTML = "N/A";
+        document.getElementById("connected-input").innerHTML = "No device connected";
     }
 
     if(output !== null){
         document.getElementById("connected-output").innerHTML = output.manufacturer +  " " + output.name;
     } else {
-        document.getElementById("connected-output").innerHTML = "N/A";
+        document.getElementById("connected-output").innerHTML = "No device connected";
     }
 }
 
@@ -374,6 +395,7 @@ function stopRecording(){
         alert("Device is not being recorded. Click 'Start Recording to begin, or 'Play' to listen");
     }
     findCurrentOctave();
+    findCurrentVelocity();
     console.log(recordingArray);
     clearOtherSelectTabs();
 }
@@ -700,29 +722,45 @@ function changeSpeed(num){
 }
 
 function changeVelocity(num){
+
     if(recordingArray.length > 0){
+        var multiplier = 1;
+        var desiredVelocity = num;
+        for (var i = 0; i < recordingArray.length; i++){
+            var currentEvent = recordingArray[i];
+            if(currentEvent.type == "noteon"){
+                var firstNoteVelocity = currentEvent.velocity;
+                var changeInVelocity = desiredVelocity - firstNoteVelocity;
+                var percentageChangeInVelocity = changeInVelocity/firstNoteVelocity;
+                multiplier = 1 + percentageChangeInVelocity;
+                console.log("Velocity of first note : " + firstNoteVelocity);
+                console.log("Desired velocity: " + desiredVelocity);
+                console.log("Change in velocity: " + changeInVelocity);
+                console.log("Percentage change in velocity: " + percentageChangeInVelocity);
+                console.log("Multiplier: " + multiplier);
+                break;
+            }
+        }
         for (var i = 0; i < recordingArray.length; i++){
             if(recordingArray[i].type == "noteon"){
                 var currentEvent = recordingArray[i];
-                if(currentEvent.velocity * num > 128 || currentEvent.velocity * num < 0){
+                if(currentEvent.velocity * multiplier > 1 || currentEvent.velocity * multiplier < 0){
                     console.log("Max/min velocity range reached");
                     return;
                 }
             }
          }
 
-         console.log("Changing velocity by " + num + "x");
+         console.log("Changing velocity by " + multiplier);
          for (var i = 0; i < recordingArray.length; i++){
              var currentEvent = recordingArray[i];
              if(currentEvent.type == "noteon"){
                      console.log("Old velocity: " + currentEvent.velocity);
-                     currentEvent.velocity *= num;
+                     currentEvent.velocity *= multiplier;
                      console.log("New velocity: " + currentEvent.velocity);
              }
 
          }
-         console.log("Velocity change by " + num + "x complete.");
-         alert("Velocity change by " + num + "x complete.");
     } else {
         alert("Record some music before attempting to edit");
     }
