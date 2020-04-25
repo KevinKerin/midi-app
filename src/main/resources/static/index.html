@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Piano for Beginners</title>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Dosis">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
@@ -11,97 +13,52 @@
     </style>
     <style>
 
-        /*body {*/
-        /*    background-color: #1a1a1a;*/
-        /*}*/
-
-        /*h4 {*/
-        /*    color: white;*/
-        /*}*/
-
-        /*a {*/
-        /*    color: white;*/
-        /*}*/
-
-        /*p {*/
-        /*    color: white;*/
-        /*}*/
-
-        #songs {
-            float: right;
-            height: 900px;
+        .control-div {
+            position: relative;
+            margin: 0 1.5%;
+            height: 400px;
+            float: left;
+            border: 1px solid black;
         }
 
-        #scales {
-            float: left;
+        /*#scales {*/
+        /*    background-color: grey;*/
+        /*}*/
+
+        /*#connections {*/
+        /*    background-color: red;*/
+        /*}*/
+
+        /*#recording {*/
+        /*    background-color: yellow;*/
+        /*}*/
+
+        /*#editing {*/
+        /*    background-color: blue;*/
+        /*}*/
+
+        /*#play {*/
+        /*    background-color: green;*/
+        /*}*/
+
+        .inner-div {
             text-align: center;
-            position: relative;
-            width: 8%;
+            font-family: 'Dosis', serif;
+            font-size: 15px;
+            position: absolute;
+            top: 10%;
+            width: 90%;
+            height: 80%;
+            margin: auto;
+            border: 1px solid black;
+            border-radius: 15px;
         }
-
-        #controls {
-            width: 100%;
-            height: 500px;
-            border: 3px solid black;
-        }
-
-        #scales {
-            position: relative;
-            width: 15%;
-            height: 400px;
-            float: left;
-            padding: 75px;
-        }
-
-        #connections {
-            position: relative;
-            width: 15%;
-            height: 400px;
-            float: left;
-            padding: 75px;
-        }
-
-        #recording {
-            position: relative;
-            width: 15%;
-            height: 400px;
-            float: left;
-            padding: 75px;
-        }
-
-        #editing {
-            position: relative;
-            width: 15%;
-            height: 400px;
-            float: left;
-            padding: 75px;
-        }
-
-        #play {
-            position: relative;
-            width: 15%;
-            height: 400px;
-            float: left;
-            padding: 75px;
-        }
-
-
-        /*#main {*/
-        /*    position: relative;*/
-        /*    float: right;*/
-        /*    !*border-style: solid;*!*/
-        /*    !*border-width: 1px;*!*/
-        /*    !*border-color: black;*!*/
-        /*    width: 90%;*/
-        /*    height: 500px;*/
-        /*    !*padding: 10px;*!*/
-        /*}*/
 
         #onscreen-piano {
+            left: 5%;
             position: absolute;
             width: 90%;
             height: 300px;
-            /*border: 1px solid black;*/
         }
 
         #top-keys{
@@ -117,17 +74,7 @@
             clear: left;
         }
 
-        #recording-container {
-            float: right;
-            width: 30px;
-            height: 30px;
-        }
 
-        <!--#recording-icon {-->
-            <!--width: 30px;-->
-            <!--height: 30px;-->
-            <!--border-radius: 50%;-->
-        <!--}-->
 
         #icon {
           float: right;
@@ -159,14 +106,9 @@
             background-color: black;
         }
 
-        /*.top-white-key-skinny{*/
-        /*    border-left: 1px solid black;*/
-        /*    border-right:  1px solid black;*/
-        /*}*/
 
         .black-key {
             background-color: black;
-            /*border-right: 1px solid black;*/
         }
 
         .top-key {
@@ -213,11 +155,6 @@
             cursor: pointer;
         }
 
-        #nav-placeholder {
-            height:75px;
-            width: 100%;
-        }
-
     </style>
 </head>
 <body>
@@ -247,8 +184,10 @@
 <!--<a id="logout-a" href="index.html" onclick="logout()">Logout</a>-->
 <!--<a id="register-a" href="register.html">Register</a>-->
 <!--<a id="login-a" href="login.html">Login</a>-->
-<div id="controls">
-    <div id="scales">
+<div id="controls" class="container">
+    <div class="row">
+    <div id="scales" class="control-div col-md-2">
+        <div class="inner-div">
         <h4>Major Scales</h4>
 
         <select id="major-scale" onchange="scaleSelect(id)">
@@ -327,10 +266,12 @@
                 <option value="default">List of saved songs</option>
             </select>
         </div>
+        </div>
 
     </div>
 
-    <div id="connections">
+    <div id="connections" class="control-div col-md-2">
+        <div class="inner-div">
 
         <select name="Input Connections" id="input-connections">
             <option value="default">Select input</option>
@@ -346,18 +287,22 @@
 
         <p id="connected-device">Input: <span id="connected-input"></span></p>
         <p>Output: <span id="connected-output"></span></p>
+        </div>
     </div>
 
-    <div id="recording">
+    <div id="recording" class="control-div col-md-2">
+        <div class="inner-div">
         <button id="start-recording">Start Recording</button>
         <button id="stop-recording">Stop Recording</button>
         <button id="save-recording">Save Recording</button>
         <input type="text" placeholder="Song Name" id="song-name-input">
         <button id="clear-recording">Clear Recording</button>
         <i id="icon" class="fa fa-3x fa-circle blink"></i>
+        </div>
     </div>
 
-    <div id="editing">
+    <div id="editing" class="control-div col-md-2">
+        <div class="inner-div">
         <div class="slidecontainer">
             <p>Octave: <span id="current-octave"></span></p>
             <input type="range" min="0" max="10" value="0" class="slider" id="octave-slider">
@@ -373,14 +318,18 @@
         <button id="harden">Harden</button>
         <button id="soften">Soften</button>
         <button id="reverse-recording">Reverse</button>
+        </div>
     </div>
 
 
-    <div id="play">
+    <div id="play" class="control-div col-md-2">
+        <div class="inner-div">
         <button id="playback">Play on device</button>
         <button id="onscreen-keyboard-playback">Play on On Screen Keyboard</button>
         <button id="download-recording">Download Recording</button>
         <input type="button" id="onscreen-keyboard-audio-toggle" value="On Screen Keyboard Audio: On"></input>
+        </div>
+    </div>
     </div>
 </div>
 

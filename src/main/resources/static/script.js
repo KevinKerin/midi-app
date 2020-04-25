@@ -205,7 +205,6 @@ WebMidi.enable(function () {
     document.getElementById('start-recording').addEventListener('click', startRecording);
     document.getElementById('stop-recording').addEventListener('click', stopRecording);
     document.getElementById('clear-recording').addEventListener('click', clearRecording);
-    document.getElementById('login').addEventListener('click', login);
     document.getElementById('harden').addEventListener('click', function() {changeVelocity(1.1)});
     document.getElementById('soften').addEventListener('click', function() {changeVelocity(0.9)});
     document.getElementById('reverse-recording').addEventListener('click', function() {reverseRecording()});
