@@ -5,10 +5,9 @@
     <title>My Account</title>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
-    <style src="style.css">
-
-    </style>
+<!--    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>-->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Dosis">
 </head>
 <body>
 
@@ -19,7 +18,6 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div id="navbar-div" class="navbar-nav">
-
 
             <a id="my-account-a" class="nav-item nav-link" href="my-account.html" onclick="checkToken(currentToken)">My Account</a>
             <a id="logout-a" class="nav-item nav-link" href="index.html" onclick="logout()" display="none">Logout</a>
@@ -83,16 +81,31 @@
             for (var savedSongs = 0; savedSongs < songList.length; savedSongs++){
                 var currentSong = songList[savedSongs];
                 var row = savedSongsTable.insertRow(1);
-                row.insertCell(0).innerHTML = currentSong['songName'];
-                row.insertCell(1).innerHTML = currentSong['date'];
-                row.insertCell(2).innerHTML = currentSong['songLength'];
+                var songName = currentSong['songName'];
+                var date = currentSong['date'];
+                var dateArray = date.split("T");
+                dateArray[1] = dateArray[1].substring(0, 8);
+                date = dateArray[1] + " " + dateArray[0];
+                // date = date.getHours + ":" + date.getMinutes + ", " + date.getDate + "/" + date.getMonth()+1 + "/" + date.getFullYear();
+                var songLength = currentSong['songLength']/1000;
+                if(songLength < 59){
+                    songLength= songLength.toFixed(1);
+                    songLength += " sec";
+                } else {
+                    var songSeconds = songLength % 60;
+                    songSeconds = songSeconds.toFixed(1);
+                    var songMinutes = Math.floor(songLength/60);
+                    songLength = songMinutes + " min " + songSeconds + " sec";
+                }
+                row.insertCell(0).innerHTML = songName;
+                row.insertCell(1).innerHTML = date;
+                row.insertCell(2).innerHTML = songLength;
                 var deleteButton = document.createElement("BUTTON");
                 deleteButton.innerHTML = "Delete";
                 deleteButton.onclick = function(){
                     deleteSong(currentSong);
                 }
                 row.insertCell(3).appendChild(deleteButton);
-
             }
         }
 
@@ -117,7 +130,7 @@
         }
 
     </script>
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 

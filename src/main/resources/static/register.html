@@ -4,8 +4,29 @@
     <meta charset="UTF-8">
     <title>Create Account</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Dosis">
 </head>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="index.html">Piano for Beginners</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div id="navbar-div" class="navbar-nav">
+
+            <a id="register-a" class="nav-item nav-link" href="register.html">Register</a>
+            <a id="login-a" class="nav-item nav-link" href="login.html">Login</a>
+
+        </div>
+    </div>
+</nav>
+
 <body>
+<div id="register-user-div">
       <div>First Name: <input type="text" id="first-name"></div>
       <div>Last Name: <input type="text" id="last-name"></div>
       <div>Email: <input type="text" id="email"></div>
@@ -13,6 +34,7 @@
       <div>Password: <input type="password" id="password"></div>
       <div>Confirm Password: <input type="password" id="confirm-password"></div>
       <div><input type="button" id="submit" value="Submit" onclick="createAccount()"></div>
+</div>
 </body>
 
 <script>

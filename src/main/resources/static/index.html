@@ -3,49 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Piano for Beginners</title>
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Dosis">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Dosis">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
-    <style src="style.css">
-
-    </style>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <link rel="stylesheet" href="style.css">
     <style>
-
-        body {
-            font-family: 'Dosis', serif;
-        }
 
         .control-div {
             position: relative;
             margin: 0 1.5%;
             height: 400px;
             float: left;
-        }
-
-        /*#scales {*/
-        /*    background-color: grey;*/
-        /*}*/
-
-        /*#connections {*/
-        /*    background-color: red;*/
-        /*}*/
-
-        /*#recording {*/
-        /*    background-color: yellow;*/
-        /*}*/
-
-        /*#editing {*/
-        /*    background-color: blue;*/
-        /*}*/
-
-        /*#play {*/
-        /*    background-color: green;*/
-        /*}*/
-
-        body {
-            background-color: black;
         }
 
         .inner-div {
@@ -85,6 +54,10 @@
             clear: left;
         }
 
+        #controls {
+            color:black;
+        }
+
         #logged-in-p {
             color: white;
         }
@@ -109,6 +82,10 @@
           to {
             visibility: hidden;
           }
+        }
+
+        .button {
+            margin: 5%;
         }
 
         .top-white-key-chunky, .top-white-key-skinny, .bottom-key{
@@ -140,7 +117,6 @@
             position: relative;
             height: 75px;
             box-sizing: border-box;
-            /*border-left: 1px solid black;*/
             border-right:  1px solid black;
             border-bottom: 1px solid black;
         }
@@ -168,9 +144,7 @@
             cursor: pointer;
         }
 
-        button {
-            border-radius: 5px;
-        }
+
 
     </style>
 </head>
@@ -194,7 +168,7 @@
 </nav>
 
 <p id="logged-in-p" class="nav-item nav-link">Logged in as <span id="name-if-logged-in"></span></p>
-
+<i id="icon" class="fa fa-5x fa-circle blink"></i>
 <!--<img src="logo.png" alt="" id="logo">-->
 <!--<p id="logged-in-p">Logged in as <span id="name-if-logged-in"></span></p>-->
 <!--<a id="my-account-a" href="my-account.html" onclick="checkToken(currentToken)">My Account</a>-->
@@ -315,12 +289,11 @@
     <div id="recording" class="control-div col-md-2">
         <div class="inner-div">
             <h4>Record</h4>
-        <button id="start-recording">Start Recording</button>
-        <button id="stop-recording">Stop Recording</button>
-        <button id="save-recording">Save Recording</button>
+        <button id="start-recording" class="button">Start Recording</button>
+        <button id="stop-recording" class="button">Stop Recording</button>
+            <button id="clear-recording" class="button">Clear Recording</button>
+        <button id="save-recording" class="button">Save Recording</button>
         <input type="text" placeholder="Song Name" id="song-name-input">
-        <button id="clear-recording">Clear Recording</button>
-        <i id="icon" class="fa fa-3x fa-circle blink"></i>
         </div>
     </div>
 
@@ -340,7 +313,7 @@
             <input type="range" min="0.1" max="2.0" value="1.0" step="0.1" class="slider" id="speed-slider">
         </div>
             <div class="slidecontainer">
-                <p>Velocity: <span id="current-velocity"></span>x</p>
+                <p>Velocity: <span id="current-velocity"></span></p>
                 <input type="range" min="0.01" max="1" value="0" step="0.01" class="slider" id="velocity-slider">
             </div>
         <button id="reverse-recording">Reverse</button>
@@ -351,10 +324,12 @@
     <div id="play" class="control-div col-md-2">
         <div class="inner-div">
             <h4>Playback</h4>
-        <button id="playback">Play on device</button>
-        <button id="onscreen-keyboard-playback">Play on On Screen Keyboard</button>
-        <button id="download-recording">Download Recording</button>
-        <input type="button" id="onscreen-keyboard-audio-toggle" value="On Screen Keyboard Audio: On"></input>
+        <button id="playback">Play on piano</button>
+        <button id="onscreen-keyboard-playback" class="button">Play on screen</button>
+        <button id="download-recording" class="button">Download Recording</button>
+        <input type="button" id="onscreen-keyboard-audio-toggle" class="button" value="On Screen Audio: On"></input>
+            <div id="download-button-div"></div>
+<!--            <button id="download-button" display="none">Download MIDI file</button>-->
         </div>
     </div>
     </div>

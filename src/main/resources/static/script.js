@@ -22,6 +22,8 @@ var currentOctaveContainer = document.getElementById("current-octave");
 var currentKeyContainer = document.getElementById("current-key");
 var currentSpeedContainer = document.getElementById("current-speed");
 var currentVelocityContainer = document.getElementById("current-velocity");
+var saveRecordingButton = document.getElementById("save-recording");
+var songNameInput = document.getElementById("song-name-input");
 checkUserLoggedIn();
 var currentToken = localStorage.getItem("token");
 console.log("Token = " + currentToken);
@@ -114,6 +116,8 @@ function checkUserLoggedIn(){
                 register.style.display = 'none';
                 login.style.display = 'none';
                 savedSongsDiv.style.display = 'block';
+                saveRecordingButton.style.display = 'inline';
+                songNameInput.style.display = 'inline';
             } else {
                 userLoggedIn = false;
                 console.log(userLoggedIn);
@@ -124,6 +128,8 @@ function checkUserLoggedIn(){
                 register.style.display = 'block';
                 login.style.display = 'block';
                 savedSongsDiv.style.display = 'none';
+                saveRecordingButton.style.display = 'none';
+                songNameInput.style.display = 'none';
             }
 
 
@@ -402,10 +408,10 @@ function stopRecording(){
 
 function onscreenKeyboardAudioToggle(){
     if(onscreenKeyboardAudio){
-        document.getElementById('onscreen-keyboard-audio-toggle').value = 'On Screen Keyboard Audio: Off';
+        document.getElementById('onscreen-keyboard-audio-toggle').value = 'On Screen Audio: Off';
         onscreenKeyboardAudio = false;
     } else {
-        document.getElementById('onscreen-keyboard-audio-toggle').value = 'On Screen Keyboard Audio: On';
+        document.getElementById('onscreen-keyboard-audio-toggle').value = 'On Screen Audio: On';
         onscreenKeyboardAudio = true;
     }
 }
@@ -619,16 +625,16 @@ function playChord(selection, type){
     clearOtherSelectTabs(type);
 }
 
-function keyColourChange(note){
+function keyColourChange(note) {
     var note = notesList[note];
     var noteName = note.noteName + note.octave;
     var substring = '#';
     console.log(noteName);
-    if(noteName.indexOf(substring) !== -1){
+    if (noteName.indexOf(substring) !== -1) {
         var topId = document.getElementById(noteName + "-top");
         topId.style.backgroundColor = "red";
         console.log("Changed to red colour");
-        setTimeout(function(){
+        setTimeout(function () {
             topId.style.backgroundColor = "black";
         }, 300);
     } else {
@@ -637,15 +643,11 @@ function keyColourChange(note){
         topId.style.backgroundColor = "red";
         bottomId.style.backgroundColor = "red";
         console.log("Changed to red colour");
-        setTimeout(function(){
+        setTimeout(function () {
             topId.style.backgroundColor = "white";
             bottomId.style.backgroundColor = "white";
         }, 300);
     }
-}
-
-function clickColourChange(id){
-
 }
 
 function clearRecording(){
@@ -766,26 +768,6 @@ function changeVelocity(num){
     }
 }
 
-//function onscreenPlayback(){
-//    if(isRecording){
-//            isRecording = false;
-//    }
-//    if(!onscreenKeyboardAudio){
-//        onscreenKeyboardAudioToggle();
-//    }
-//    if(recordingArray.length > 0){
-//        console.log("On Screen Playback starting...");
-//        for (var i = 0; i < recordingArray.length; i++){
-//            var currentEvent = recordingArray[i];
-//            if(currentEvent.type == "noteon"){
-//
-//            }
-//        }
-//    } else {
-//        console.log("Nothing on file to play");
-//    }
-//}
-
 function playOnscreenKey(event, playbackTime){
     if (onscreenKeyboardAudio){
         setTimeout(function(){
@@ -815,18 +797,12 @@ function playback(playbackType){
                         console.log("Note: " + event.note.number + ", velocity: " + event.velocity + ", timestamp: " + playbackTime);
                         output.playNote(event.note.number, event.channel, {velocity: event.velocity, time: "+" + playbackTime});
                     }
-//                    var currentNote = document.getElementById(event.note.name + event.note.octave + "-top");
-//                    console.log(currentNote);
-//                    console.log("Event timestamp: " + event.timestamp);
                     prePlaybackKeyColourChange(event, i, playbackTime);
                 } else if(event.type == "noteoff"){
                     console.log("Note: " + event.note.number + ", timestamp: " + playbackTime);
                     if(pianoConnected){
                         output.stopNote(event.note.number, event.channel, {time: "+" + playbackTime});
                     }
-//                    depressedKeyColourChange(event.note.name + event.note.octave);
-//                    document.getElementById(event.note.name + event.note.octave + "-top").style.backgroundColor = "black";
-//                    noteOff(event, recordingArray, isRecording);
                 } else if(event.type = "controlchange" && pianoConnected){
                     if(event.value < 64){
                         output.sendControlChange("holdpedal", 0, event.channel, {time: "+" + playbackTime});
@@ -911,9 +887,6 @@ function reverseRecording(){
     console.log("Largest timestamp is " + lastTimestamp);
 
     for (var i=0; i < reversedRecordingArray.length; i++){
-    //    loop through reversed array and change the timestamp i.e. 4000 becomes 0, 1000 becomes 3000, 2500 becomes 1500
-    //    1 becomes 3999
-    //    change noteon to noteoff and vice versa
         var currentEvent = reversedRecordingArray[i];
         currentEvent.timestamp = (currentEvent.timestamp * -1) + lastTimestamp;
 
@@ -960,7 +933,7 @@ function onMIDISuccess(midiAccess) {
 function getMIDIMessage(message) {
     var command = message.data[0];
     var note = message.data[1];
-    var velocity = (message.data.length > 2) ? message.data[2] : 0; // a velocity value might not be included with a noteOff command
+    var velocity = (message.data.length > 2) ? message.data[2] : 0;
 
     switch (command) {
         case 144: // noteOn
@@ -973,19 +946,9 @@ function getMIDIMessage(message) {
         case 128: // noteOff
             noteOff(note);
             break;
-        // we could easily expand this switch statement to cover other types of commands such as controllers or sysex
     }
 }
 
-//function noteOn(note, velocity){
-//    console.log("Note pressed: " + note + " at " + velocity + " velocity");
-//
-//}
-//
-//function noteOff(note){
-//    console.log("Note stopped: " + note);
-//
-//}
 
 function saveRecording(songName){
 
@@ -1035,15 +998,6 @@ function songSelect(selectedOption){
 
     var selectedSongId = selectedOption.value;
     recordingArray = getSongById(selectedSongId)["jsMidiEventList"];
-    // $.ajax({
-    //     type: "GET",
-    //     url: "/song/getSong/" + selectedSongId,
-    //     headers: { 'X-Token': currentToken },
-    //     dataType: "json",
-    //     success: function(data){
-    //         recordingArray = data['jsMidiEventList'];
-    //     }
-    // });
 
     clearOtherSelectTabs("saved-songs");
 }
@@ -1060,7 +1014,11 @@ function downloadRecording(){
                 channel: event.channel,
                 type: event.type,
                 timestamp: event.timestamp - firstNoteTime,
-                noteNumber: event.note.number,
+                note: {
+                    number: event.note.number,
+                    name: event.note.name,
+                    octave: event.note.octave
+                },
                 velocity: event.velocity
             };
         } else {
@@ -1090,7 +1048,7 @@ function downloadRecording(){
             window.MIDIDownload.download = "midi-recording-" + date.getDate() + "-" + date.getMonth() + "-" + date.getFullYear() + " " + date.getHours() + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + date.getMilliseconds() + ".mid";
             window.MIDIDownload.href = "data:audio/midi;base64," + content;
             window.MIDIDownload.innerHTML = "Download MIDI File";
-            document.getElementById('buttons').appendChild(window.MIDIDownload);
+            document.getElementById('download-button-div').appendChild(window.MIDIDownload);
         }
     })
 }
@@ -1125,25 +1083,6 @@ function deleteAccount(){
     })
 }
 
-// function logout(){
-//     $.ajax({
-//         method: 'GET',
-//         url: '/user/logout',
-//         headers: {
-//             'X-Token' : localStorage.getItem("token")
-//         },
-//         // dataType: 'JSON',
-//         success: function(data){
-//             console.log("Data:");
-//             console.log(data);
-//         },
-//         error: function(data){
-//             console.log("Error in request");
-//             console.log(data);
-//         }
-//     });
-// }
-
 (function() {
     if(currentToken != null){
         $.ajax({
@@ -1167,7 +1106,7 @@ function deleteAccount(){
         });
         $.ajax({
             method: 'GET',
-            url: 'user/info',
+            url: '/user/info',
             headers: {
                 'X-Token' : localStorage.getItem("token")
             },
@@ -1180,88 +1119,3 @@ function deleteAccount(){
         });
     }
 })();
-
-
-// function trickOfTheLight(i){
-//     trickLyrics(i);
-//     output.playNote(["B2", "D#3", "F#3", "B3", "D#4"], 1, {duration: 2000});
-//     sleep(1000);
-//     output.playNote(["B2", "D#3"], 1, {duration: 1000});
-//     sleep(1000);
-//     output.playNote(["A#2", "F#3", "A#3", "F#4"], 1, {duration: 1000});
-//     sleep(1000);
-//     output.playNote(["A#2", "D3", "F3", "A#3", "D4", "F4"], 1, {duration: 1000});
-//     sleep(1000);
-//     output.playNote(["A#2", "D#3", "A#3", "D#4"], 1, {duration: 1000});
-//     sleep(1000);
-//     output.playNote(["A#2", "D#3"], 1, {duration: 1000});
-//     sleep(1000);
-//     output.playNote(["A#2", "C#3", "A#3", "C#4"], 1, {duration: 1000});
-//     sleep(1000);
-//     output.playNote(["A#2", "C#3"], 1, {duration: 1000});
-//     sleep(1000);
-//     if(i == 2){
-//         trickMelody();
-//     }
-// }
-//
-// function trickMelody(){
-//     output.playNote("C#5", 1).stopNote("C#5", 1, {time: 400, velocity: 0.8});
-//     output.playNote("G#4", 1, {time: "+650"}).stopNote("G#4", 1, {time: 250, velocity: 0.55});
-//     output.playNote("G#4", 1, {time: "+850"}).stopNote("G#4", 1, {time: 600, velocity: 0.75});
-//     output.playNote("G#4", 1, {time: "+1500"}).stopNote("G#4", 1, {time: 300, velocity: 0.55});
-//     output.playNote("G#4", 1, {time: "+1700"}).stopNote("G#4", 1, {time: 500, velocity: 0.75});
-//     output.playNote("F#4", 1, {time: "+2300"}).stopNote("F#4", 1, {time: 400, velocity: 0.7});
-//
-//     output.playNote("D#4", 1, {time: "+3300"}).stopNote("D#4", 1, {time: 150, velocity: 0.55});
-//     output.playNote("D#4", 1, {time: "+3400"}).stopNote("D#4", 1, {time: 250, velocity: 0.55});
-//     output.playNote("D#5", 1, {time: "+3700"}).stopNote("D#5", 1, {time: 300, velocity: 0.75});
-//     output.playNote("G#4", 1, {time: "+4500"}).stopNote("G#4", 1, {time: 200, velocity: 0.5});
-//     output.playNote("G#4", 1, {time: "+5000"}).stopNote("G#4", 1, {time: 300, velocity: 0.75});
-//     output.playNote("G#4", 1, {time: "+5300"}).stopNote("G#4", 1, {time: 200, velocity: 0.6});
-//     output.playNote("F#4", 1, {time: "+6000"}).stopNote("F#4", 1, {time: 400, velocity: 0.75});
-//
-//     output.playNote("C#5", 1, {time: "+7800"}).stopNote("C#5", 1, {time: 400, velocity: 0.8});
-//     output.playNote("C#5", 1, {time: "+8100"}).stopNote("C#5", 1, {time: 400, velocity: 0.8});
-//     output.playNote("G#4", 1, {time: "+8650"}).stopNote("G#4", 1, {time: 250, velocity: 0.55});
-//     output.playNote("G#4", 1, {time: "+8850"}).stopNote("G#4", 1, {time: 600, velocity: 0.75});
-//     output.playNote("G#4", 1, {time: "+9500"}).stopNote("G#4", 1, {time: 300, velocity: 0.55});
-//     output.playNote("G#4", 1, {time: "+9700"}).stopNote("G#4", 1, {time: 500, velocity: 0.75});
-//     output.playNote("F#4", 1, {time: "+10300"}).stopNote("F#4", 1, {time: 400, velocity: 0.7});
-//
-//     output.playNote("D#4", 1, {time: "+11000"}).stopNote("D#4", 1, {time: 250, velocity: 0.65});
-//     output.playNote("D#5", 1, {time: "+11700"}).stopNote("D#5", 1, {time: 300, velocity: 0.75});
-//     output.playNote("G#4", 1, {time: "+12500"}).stopNote("G#4", 1, {time: 200, velocity: 0.5});
-//     output.playNote("G#4", 1, {time: "+13000"}).stopNote("G#4", 1, {time: 300, velocity: 0.75});
-//     output.playNote("G#4", 1, {time: "+13300"}).stopNote("G#4", 1, {time: 200, velocity: 0.6});
-//     output.playNote("F#4", 1, {time: "+14000"}).stopNote("F#4", 1, {time: 400, velocity: 0.75});
-//
-//     output.playNote("C#5", 1, {time: "+15000"}).stopNote("C#5", 1, {time: 400, velocity: 0.8});
-//     output.playNote("C#5", 1, {time: "+15500"}).stopNote("C#5", 1, {time: 400, velocity: 0.8});
-//     output.playNote("G#4", 1, {time: "+16650"}).stopNote("G#4", 1, {time: 250, velocity: 0.55});
-//     output.playNote("G#4", 1, {time: "+16850"}).stopNote("G#4", 1, {time: 600, velocity: 0.75});
-//     output.playNote("G#4", 1, {time: "+17500"}).stopNote("G#4", 1, {time: 300, velocity: 0.55});
-//     output.playNote("G#4", 1, {time: "+17700"}).stopNote("G#4", 1, {time: 500, velocity: 0.75});
-//     output.playNote("F#4", 1, {time: "+18300"}).stopNote("F#4", 1, {time: 400, velocity: 0.7});
-//
-//     output.playNote("D#4", 1, {time: "+18800"}).stopNote("D#4", 1, {time: 150, velocity: 0.55});
-//     output.playNote("D#4", 1, {time: "+19400"}).stopNote("D#4", 1, {time: 250, velocity: 0.55});
-//     output.playNote("D#5", 1, {time: "+19700"}).stopNote("D#5", 1, {time: 300, velocity: 0.75});
-//     output.playNote("G#4", 1, {time: "+20500"}).stopNote("G#4", 1, {time: 200, velocity: 0.5});
-//     output.playNote("G#4", 1, {time: "+21000"}).stopNote("G#4", 1, {time: 300, velocity: 0.75});
-//     output.playNote("G#4", 1, {time: "+21300"}).stopNote("G#4", 1, {time: 200, velocity: 0.6});
-//     output.playNote("F#4", 1, {time: "+22000"}).stopNote("F#4", 1, {time: 400, velocity: 0.75});
-//
-//     output.playNote("C#5", 1, {time: "+23500"}).stopNote("C#5", 1, {time: 400, velocity: 0.8});
-//     output.playNote("C#5", 1, {time: "+24200"}).stopNote("C#5", 1, {time: 400, velocity: 0.8});
-//     output.playNote("G#4", 1, {time: "+24650"}).stopNote("G#4", 1, {time: 250, velocity: 0.55});
-//     output.playNote("G#4", 1, {time: "+24850"}).stopNote("G#4", 1, {time: 600, velocity: 0.75});
-//     output.playNote("G#4", 1, {time: "+25500"}).stopNote("G#4", 1, {time: 300, velocity: 0.55});
-//     output.playNote("G#4", 1, {time: "+25700"}).stopNote("G#4", 1, {time: 500, velocity: 0.75});
-//     output.playNote("F#4", 1, {time: "+26300"}).stopNote("F#4", 1, {time: 400, velocity: 0.7});
-//
-//
-// }
-
-
-

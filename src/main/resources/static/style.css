@@ -1,9 +1,24 @@
-#navbar {
-    width: 100%;
-    height: 50px;
-    background-color: gray;
+body {
+    font-family: 'Dosis', serif;
+    background-color: black;
+    color: white;
+    text-align: center;
 }
 
-/*body {*/
-/*    background-color: #dbfbff;*/
-/*}*/
+button {
+    border-radius: 5px;
+}
+
+table {
+    text-align: center;
+}
+
+#login-details, #my-details-div, #change-password-div, #delete-account-div, #register-user-div {
+    margin-top: 200px;
+}
+
+#saved-songs-table {
+    top: 200px;
+    margin: auto;
+    margin-top: 200px;
+}
