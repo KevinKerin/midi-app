@@ -2,6 +2,7 @@ var songsList =[];
 var synth = new Tone.AMSynth().toMaster();
 var recordingArray = [];
 var reversedRecordingArray = [];
+var deviceConnected;
 var keyMap;
 var keyboardMap;
 var userLoggedIn;
@@ -10,6 +11,8 @@ var output;
 var isRecording = false;
 var icon = document.getElementById("icon");
 var notesList = [];
+var inputConnections = document.getElementById("input-connections");
+var outputConnections = document.getElementById("output-connections");
 var alertTextbox = document.getElementById("alert-textbox");
 var octaveSlider = document.getElementById("octave-slider");
 var transposeSlider = document.getElementById("transpose-slider");
@@ -147,13 +150,6 @@ WebMidi.enable(function () {
     console.log(WebMidi.inputs.length);
     console.log(WebMidi.outputs.length);
 
-    if(WebMidi.inputs.length > 0){
-        input = WebMidi.inputs[0];
-    }
-
-    if(WebMidi.outputs.length > 0){
-        output = WebMidi.outputs[0];
-    }
     setupConnection();
     // displayConnections();
 
@@ -171,28 +167,6 @@ WebMidi.enable(function () {
     document.getElementById('save-recording').addEventListener('click', function() {saveRecording(songNameInput.value)});
     document.getElementById('download-recording').addEventListener('click', function() {downloadRecording()});
     document.addEventListener('keypress', keyboardListener);
-    input.addListener('noteon', "all", function(e) {noteOn(e, recordingArray, isRecording)});
-    input.addListener('noteoff', "all", function(e) {noteOff (e, recordingArray, isRecording)});
-    input.addListener('controlchange', "all", function (e) {
-        if(isRecording){
-            console.log("Received 'controlchange' message.", e);
-            recordingArray.push(e);
-        }
-    });
-
-    input.addListener('songselect', 'all',
-        function(e){
-            console.log(e.data);
-            console.log(e.timestamp);
-            console.log(e.type);
-            console.log(e.song);
-        });
-
-    input.addListener('pitchbend', 3,
-        function (e) {
-          console.log("Received 'pitchbend' message.", e);
-        }
-    );
 
 });
 
@@ -258,48 +232,75 @@ function setupConnection(){
         option.text = optionText;
         outputSelect.add(option);
     }
-    displayConnections();
-}
+    if(WebMidi.inputs.length > 0){
+        input = WebMidi.inputs[0];
+        deviceConnected = true;
+    }
+    if(WebMidi.outputs.length > 0){
+        output = WebMidi.outputs[0];
+        deviceConnected = true;
+    }
 
-function deviceConnection(){
-    input = WebMidi.inputs[document.getElementById("input-connections").selectedIndex];
-    output = WebMidi.outputs[document.getElementById("output-connections").selectedIndex];
+    if(input != null){
+        input.addListener('noteon', "all", function(e) {noteOn(e, recordingArray, isRecording)});
+        input.addListener('noteoff', "all", function(e) {noteOff (e, recordingArray, isRecording)});
+        input.addListener('controlchange', "all", function (e) {
+            if(isRecording){
+                console.log("Received 'controlchange' message.", e);
+                recordingArray.push(e);
+            }
+        });
+    }
 
     displayConnections();
 }
 
 function displayConnections(){
 
-    if(input !== null){
+    if(input != null){
         document.getElementById("connected-input").innerHTML = input.manufacturer +  " " + input.name;
     } else {
         document.getElementById("connected-input").innerHTML = "No device connected";
     }
 
-    if(output !== null){
+    if(output != null){
         document.getElementById("connected-output").innerHTML = output.manufacturer +  " " + output.name;
     } else {
         document.getElementById("connected-output").innerHTML = "No device connected";
     }
 }
 
+function deviceConnection(){
+
+    if(inputConnections.options.selectedIndex == 0 || outputConnections.options.selectedIndex == 0){
+        return;
+    }
+    input = WebMidi.inputs[inputConnections.options.selectedIndex-1];
+    output = WebMidi.outputs[outputConnections.options.selectedIndex-1];
+    document.getElementById("connected-input").innerHTML = input.manufacturer +  " " + input.name;
+    document.getElementById("connected-output").innerHTML = output.manufacturer +  " " + output.name;
+    deviceConnected = true;
+
+    displayConnections();
+
+}
+
 function deviceDisconnection(){
+
     input = null;
     output = null;
 
-    var inputOptions = document.getElementById("input-connections");
-    var outputOptions = document.getElementById("output-connections");
+    var inputOutputConnections = [inputConnections, outputConnections];
 
-    var inputOutputOptions = ["input-connections", "output-connections"];
-
-    for (var i = 0; i < inputOutputOptions.length; i++){
-        var currentSelection = document.getElementById(inputOutputOptions[i]);
+    for (var i = 0; i < inputOutputConnections.length; i++){
+        var currentSelection = inputOutputConnections[i];
         for (var j = 0; j < currentSelection.options.length; j++){
             if (currentSelection.options[j].value === "default"){
                 currentSelection.selectedIndex = currentSelection.options[j];
             }
         }
     }
+    deviceConnected = false;
 
     displayConnections();
 
@@ -366,29 +367,31 @@ function onscreenKeyboardAudioToggle(){
 }
 
 function noteOn(event, recordingArray, isRecording){
-    console.log("noteOn function called");
-    console.log(event);
-    if(isRecording){
-        alertTextbox.innerHTML = "Recording";
-        icon.style.visibility = "visible";
-        logMidiMessage(event);
-        recordingArray.push(event);
-        console.log("Array now contains " + recordingArray.length + " events.");
-    }
-    var note = event.note.name + event.note.octave;
-    var substring = "#";
-    console.log(note + " pressed at " + event.velocity);
-    if(onscreenKeyboardAudio){
-        startWaveTableNow(event.note.number);
-    }
-    if(note.indexOf(substring) !== -1){
-        var topId = document.getElementById(note + "-top");
-        topId.style.backgroundColor = "red";
-    } else {
-        var topId = document.getElementById(note + "-top");
-        var bottomId = document.getElementById(note + "-bottom");
-        topId.style.backgroundColor = "red";
-        bottomId.style.backgroundColor = "red";
+    if(deviceConnected){
+        console.log("noteOn function called");
+        console.log(event);
+        if(isRecording){
+            alertTextbox.innerHTML = "Recording";
+            icon.style.visibility = "visible";
+            logMidiMessage(event);
+            recordingArray.push(event);
+            console.log("Array now contains " + recordingArray.length + " events.");
+        }
+        var note = event.note.name + event.note.octave;
+        var substring = "#";
+        console.log(note + " pressed at " + event.velocity);
+        if(onscreenKeyboardAudio){
+            startWaveTableNow(event.note.number);
+        }
+        if(note.indexOf(substring) !== -1){
+            var topId = document.getElementById(note + "-top");
+            topId.style.backgroundColor = "red";
+        } else {
+            var topId = document.getElementById(note + "-top");
+            var bottomId = document.getElementById(note + "-bottom");
+            topId.style.backgroundColor = "red";
+            bottomId.style.backgroundColor = "red";
+        }
     }
 }
 
@@ -430,8 +433,6 @@ function clearOtherSelectTabs(selectedOption){
     var options = ["major-chord", "minor-chord", "major-scale", "minor-scale", "saved-songs"];
     for (var i=0; i<options.length; i++){
         var currentSelection = document.getElementById(options[i]);
-        console.log(currentSelection.id);
-        console.log(selectedOption);
         if(currentSelection.id !== selectedOption){
             var opts = currentSelection.options;
             for(var j = 0; j < opts.length; j++){
@@ -447,6 +448,7 @@ function scaleSelect(type){
     var scaleSelect = document.getElementById(type);
     var currentSelection = scaleSelect.options[scaleSelect.selectedIndex].value;
     var type = scaleSelect.id;
+    alertTextbox.innerHTML = scaleSelect.options[scaleSelect.selectedIndex].text;
     console.log(type);
     playScale(currentSelection, type);
 }
@@ -500,6 +502,7 @@ function playScale(selection, type){
 function chordSelect(type){
     var chordSelect = document.getElementById(type);
     var currentSelection = chordSelect.options[chordSelect.selectedIndex].value;
+    alertTextbox.innerHTML = chordSelect.options[chordSelect.selectedIndex].text;
     var type = chordSelect.id;
     console.log(type);
     playChord(currentSelection, type);
@@ -616,23 +619,25 @@ function clearRecording(){
 }
 
 function noteOff(event, recordingArray, isRecording){
-    console.log("noteOff function called");
-    console.log(event);
-    var note = event.note.name + event.note.octave;
-    var substring = "#";
-    console.log(note + " stopped");
-    if(note.indexOf(substring) !== -1){
-        var topId = document.getElementById(note + "-top");
-        topId.style.backgroundColor = "black";
-    } else {
-        var topId = document.getElementById(note + "-top");
-        var bottomId = document.getElementById(note + "-bottom");
-        topId.style.backgroundColor = "white";
-        bottomId.style.backgroundColor = "white";
-    }
-    if(isRecording){
-        recordingArray.push(event);
-        console.log("Note Off detected. Array now contains " + recordingArray.length + " events");
+    if(deviceConnected){
+        console.log("noteOff function called");
+        console.log(event);
+        var note = event.note.name + event.note.octave;
+        var substring = "#";
+        console.log(note + " stopped");
+        if(note.indexOf(substring) !== -1){
+            var topId = document.getElementById(note + "-top");
+            topId.style.backgroundColor = "black";
+        } else {
+            var topId = document.getElementById(note + "-top");
+            var bottomId = document.getElementById(note + "-bottom");
+            topId.style.backgroundColor = "white";
+            bottomId.style.backgroundColor = "white";
+        }
+        if(isRecording){
+            recordingArray.push(event);
+            console.log("Note Off detected. Array now contains " + recordingArray.length + " events");
+        }
     }
 }
 
@@ -978,13 +983,22 @@ function getSongById(songId){
     }
 }
 
-function songSelect(selectedOption){
+function songSelect(dropdownMenu){
 
-    var selectedSongId = selectedOption.value;
+    var selectedSongId = dropdownMenu.value;
     recordingArray = getSongById(selectedSongId)["jsMidiEventList"];
-
-    alertTextbox.innerHTML = selectedOption.innerHTML;
+    alertTextbox.innerHTML = dropdownMenu.options[dropdownMenu.selectedIndex].text;
+    $.ajax({
+        type: "GET",
+        url: "/song/getSong/" + selectedSongId,
+        headers: { 'X-Token': currentToken },
+        dataType: "json",
+        success: function(data){
+            recordingArray = data['jsMidiEventList'];
+        }
+    });
     clearOtherSelectTabs("saved-songs");
+
 }
 
 function downloadRecording(){
@@ -1041,11 +1055,9 @@ function downloadRecording(){
 function populateSongsList(songData){
     var savedSongs = document.getElementById("saved-songs");
     for (var songIndex = 0; songIndex < songData.length; songIndex++){
-        console.log(songData[songIndex]);
         var newOption = document.createElement("option");
         newOption.value = songData[songIndex]["songId"];
         newOption.innerHTML = songData[songIndex]["songName"];
-        console.log(songData[songIndex]["songName"]);
         savedSongs.add(newOption);
     }
 }
@@ -1072,6 +1084,7 @@ function deleteAccount(){
 
 (function() {
     if(currentToken != null){
+        alertTextbox.innerHTML = "Loading songs";
         $.ajax({
             method: 'GET',
             url: '/song/all',
@@ -1085,6 +1098,10 @@ function deleteAccount(){
                 songsList = data;
                 console.log(songsList);
                 populateSongsList(data);
+                alertTextbox.innerHTML = "Saved songs successfully loaded";
+                setTimeout(function(){
+                    alertTextbox.innerHTML = "";
+                }, 2000);
             },
             error: function(data){
                 console.log("Error in ajax request");
