@@ -8,6 +8,12 @@
 <!--    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>-->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Dosis">
+    <style>
+
+        th, td {
+            padding: 20px;
+        }
+    </style>
 </head>
 <body>
 
@@ -20,17 +26,18 @@
         <div id="navbar-div" class="navbar-nav">
 
             <a id="my-account-a" class="nav-item nav-link" href="my-account.html" onclick="checkToken(currentToken)">My Account</a>
-            <a id="logout-a" class="nav-item nav-link" href="index.html" onclick="logout()" display="none">Logout</a>
+            <a id="logout-a" class="nav-item nav-link" onclick="logout()" display="none">Logout</a>
 
         </div>
     </div>
 </nav>
 
+<p id="alert-textbox"></p>
     <table id="saved-songs-table">
         <tr>
-            <th>Song Name</th>
-            <th>Date Created</th>
-            <th>Song Length</th>
+            <th><h4>Song Name</h4></th>
+            <th><h4>Date Created</h4></th>
+            <th><h4>Song Length</h4></th>
             <th></th>
         </tr>
     </table>
@@ -38,7 +45,25 @@
     <a href="my-details.html">My Personal Details</a>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="logout.js"></script>
     <script>
+
+        (function() {
+            if(localStorage.getItem("token") != null){
+                $.ajax({
+                    method: 'GET',
+                    url: '/user/session',
+                    headers: {
+                        'X-Token' : localStorage.getItem('token')
+                    },
+                    success: function(data){
+                        if(data['token'] == null){
+                            window.location.replace("login.html");
+                        }
+                    }
+                });
+            }})();
+
         (function() {
             if(localStorage.getItem("token") != null){
                 $.ajax({
@@ -119,9 +144,13 @@
                 },
                 // dataType: 'JSON',
                 success: function(data){
-                    alert("Song deleted");
-                    console.log(data);
-                    window.location.replace("my-account.html");
+                    var alertTextbox = document.getElementById("alert-textbox");
+                    // alert("Song deleted");
+                    alertTextbox.innerHTML = "Song deleted";
+                    setTimeout(function(){
+                        alertTextbox.innerHTML = "";
+                        window.location.replace("my-account.html");
+                    }, 2500);
                 },
                 error: function(data){
                     console.log(data);

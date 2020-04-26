@@ -59,11 +59,13 @@
         }
 
         #logged-in-p {
+            margin-top: 25px;
             color: white;
         }
 
         #icon {
           float: right;
+            margin-right: 60px;
           color: red;
           visibility: hidden;
         }
@@ -82,6 +84,9 @@
           to {
             visibility: hidden;
           }
+        }
+        #logged-in-p {
+            float: left;
         }
 
         .button {
@@ -168,13 +173,9 @@
 </nav>
 
 <p id="logged-in-p" class="nav-item nav-link">Logged in as <span id="name-if-logged-in"></span></p>
+<p id="alert-textbox"></p>
 <i id="icon" class="fa fa-5x fa-circle blink"></i>
-<!--<img src="logo.png" alt="" id="logo">-->
-<!--<p id="logged-in-p">Logged in as <span id="name-if-logged-in"></span></p>-->
-<!--<a id="my-account-a" href="my-account.html" onclick="checkToken(currentToken)">My Account</a>-->
-<!--<a id="logout-a" href="index.html" onclick="logout()">Logout</a>-->
-<!--<a id="register-a" href="register.html">Register</a>-->
-<!--<a id="login-a" href="login.html">Login</a>-->
+
 <div id="controls" class="container">
     <div class="row">
     <div id="scales" class="control-div col-md-2">
@@ -556,27 +557,7 @@
     <!--</tone-demo>-->
 
 
-<script>
 
-    function logout(){
-        $.ajax({
-            method: 'GET',
-            url: '/user/logout',
-            headers: {
-                'X-Token' : localStorage.getItem("token")
-            },
-            // dataType: 'JSON',
-            success: function(data){
-                console.log("Data:");
-                console.log(data);
-            },
-            error: function(data){
-                console.log("Error in request");
-                console.log(data);
-            }
-        });
-    }
-</script>
 <!--<script src="WebMIDIAPI/WebMIDIAPI.js"></script>-->
 <!--<script src="/WebMIDIAPIWrapper.js"></script>-->
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -591,6 +572,7 @@
 <!--<script src="webmidi.min.js"></script>-->
 <script src="https://cdn.jsdelivr.net/npm/webmidi"></script>
 <script src="script.js"></script>
+<script src="logout.js"></script>
 <script src="Tone.js"></script>
 
 </body>

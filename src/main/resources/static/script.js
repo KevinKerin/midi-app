@@ -10,6 +10,7 @@ var output;
 var isRecording = false;
 var icon = document.getElementById("icon");
 var notesList = [];
+var alertTextbox = document.getElementById("alert-textbox");
 var octaveSlider = document.getElementById("octave-slider");
 var transposeSlider = document.getElementById("transpose-slider");
 var speedSlider = document.getElementById("speed-slider");
@@ -39,57 +40,7 @@ function startWaveTableNow(pitch) {
         var audioBufferSourceNode = player.queueWaveTable(audioContext, audioContext.destination, selectedPreset, audioContext.currentTime + 0, pitch, 1.0);
     }
 }
-// <script>
-// if(checkUserLoggedIn()){
-//     document.getElementById("register-a").style.display = "none";
-//     document.getElementById("login-a").style.display = "none";
-// } else {
-//     document.getElementById("logged-in-p").style.display = "none";
-//     document.getElementById("my-account-a").style.display = "none";
-//     document.getElementById("logout-a").style.display = "none";
-// }
 
-// var navbarDiv = document.getElementById("navbar-div");
-// var loggedInAs = document.createElement("p");
-// loggedInAs.innerHTML = "test";
-// loggedInAs.classList.add("nav-item nav-link");
-// var myAccount = document.createElement("a");
-// var logout = document.createElement("a");
-// navbarDiv.append(loggedInAs);
-// navbarDiv.appendChild(myAccount);
-// navbarDiv.appendChild(logout);
-//
-// var testy = document.createElement("h1");
-// testy.innerHTML = "MASSIVE WRITING";
-// document.getElementById("test").appendChild(testy);
-//
-//
-//
-//
-// var loggedInAs = document.getElementById("logged-in-p");
-// var myAccount =  = document.getElementById("my-account-a");
-// var logout = document.getElementById("logout-a");
-// var register = document.getElementById("register-a");
-// var login = document.getElementById("login-a");
-// if(checkUserLoggedIn()){
-//     register.style.display = "none";
-//     login.style.display = "none";
-//     loggedInAs.style.display = "inline";
-//     myAccount.style.display = "inline";
-//     logout.style.display = "inline";
-// } else {
-//     loggedInAs.style.display = "none";
-//     myAccount.style.display = "none";
-//     logout.style.display = "none";
-//     register.style.display = "inline";
-//     login.style.display = "inline";
-// }
-
-
-
-
-
-// </script>
 function checkUserLoggedIn(){
     var loggedIn = document.getElementById('logged-in-p');
     var myAccount = document.getElementById('my-account-a');
@@ -131,21 +82,11 @@ function checkUserLoggedIn(){
                 saveRecordingButton.style.display = 'none';
                 songNameInput.style.display = 'none';
             }
-
-
         },
-
     });
 
     return userLoggedIn;
 }
-
-
-if(localStorage.getItem("token") !== null){
-
-}
-
-var songNameInput = document.getElementById("song-name-input");
 
 currentOctaveContainer.innerHTML = octaveSlider.value;
 octaveSlider.oninput = function() {
@@ -227,7 +168,7 @@ WebMidi.enable(function () {
     document.getElementById('clear-recording').addEventListener('click', clearRecording);
     document.getElementById('reverse-recording').addEventListener('click', function() {reverseRecording()});
     document.getElementById('onscreen-keyboard-audio-toggle').addEventListener('click', onscreenKeyboardAudioToggle);
-    document.getElementById('save-recording').addEventListener('click', function() {saveRecording(document.getElementById('song-name-input').value)});
+    document.getElementById('save-recording').addEventListener('click', function() {saveRecording(songNameInput.value)});
     document.getElementById('download-recording').addEventListener('click', function() {downloadRecording()});
     document.addEventListener('keypress', keyboardListener);
     input.addListener('noteon', "all", function(e) {noteOn(e, recordingArray, isRecording)});
@@ -385,10 +326,12 @@ function showLog(){
 }
 
 function startRecording(){
-    alert("Recording will begin when you start playing");
+
+    alertTextbox.innerHTML = "Recording will begin when you start playing";
     console.log("Recording starting...");
     isRecording = true;
     recordingArray = [];
+    clearOtherSelectTabs("n/a");
 }
 
 function stopRecording(){
@@ -396,9 +339,15 @@ function stopRecording(){
         isRecording = false;
         console.log("Recording stopped");
         icon.style.visibility = "hidden";
-        alert("Recording stopped. Click 'Play' to listen, or use buttons to edit");
+        alertTextbox.innerHTML = "Recording stopped. Click 'Play' to listen, or use buttons to edit";
+        setTimeout(function(){
+            alertTextbox.innerHTML = "";
+        }, 4000);
     } else {
-        alert("Device is not being recorded. Click 'Start Recording to begin, or 'Play' to listen");
+        alertTextbox.innerHTML = "Device is not being recorded. Click 'Start Recording to begin, or 'Play' to listen";
+        setTimeout(function(){
+            alertTextbox.innerHTML = "";
+        }, 4000);
     }
     findCurrentOctave();
     findCurrentVelocity();
@@ -420,6 +369,7 @@ function noteOn(event, recordingArray, isRecording){
     console.log("noteOn function called");
     console.log(event);
     if(isRecording){
+        alertTextbox.innerHTML = "Recording";
         icon.style.visibility = "visible";
         logMidiMessage(event);
         recordingArray.push(event);
@@ -652,10 +602,16 @@ function keyColourChange(note) {
 
 function clearRecording(){
     if(recordingArray.length == 0){
-        alert("Recording is already empty");
+        alertTextbox.innerHTML = "Recording is already empty";
+        setTimeout(function(){
+            alertTextbox.innerHTML = "";
+        }, 4000);
     } else {
         recordingArray = [];
-        alert("Recording cleared");
+        alertTextbox.innerHTML = "Recording cleared";
+        setTimeout(function(){
+            alertTextbox.innerHTML = "";
+        }, 4000);
     }
 }
 
@@ -707,7 +663,10 @@ function changeTune(amountOfKeys){
         }
         console.log("Transpose change by " + amountOfKeys + " keys complete.");
     } else {
-        alert("Record some music before attempting to edit");
+        alertTextbox.innerHTML = "Recording stopped. Click 'Play' to listen, or use buttons to edit";
+        setTimeout(function(){
+            alertTextbox.innerHTML = "";
+        }, 4000);
     }
 }
 
@@ -719,7 +678,10 @@ function changeSpeed(num){
             }
         console.log("Speed change by " + num + "x complete.");
     } else {
-        alert("Record some music before attempting to edit");
+        alertTextbox.innerHTML = "Record some music before attempting to edit";
+        setTimeout(function(){
+            alertTextbox.innerHTML = "";
+        }, 4000);
     }
 }
 
@@ -764,7 +726,10 @@ function changeVelocity(num){
 
          }
     } else {
-        alert("Record some music before attempting to edit");
+        alertTextbox.innerHTML = "Recording stopped. Click 'Play' to listen, or use buttons to edit";
+        setTimeout(function(){
+            alertTextbox.innerHTML = "";
+        }, 4000);
     }
 }
 
@@ -814,7 +779,10 @@ function playback(playbackType){
                 }
             }
     } else {
-        alert("Nothing on file to play");
+        alertTextbox.innerHTML = "Nothing on file to play";
+        setTimeout(function(){
+            alertTextbox.innerHTML = "";
+        }, 4000);
     }
 
 
@@ -873,7 +841,10 @@ function playbackKeyColourChange(event, index){
 function reverseRecording(){
     reversedRecordingArray = [];
     if(recordingArray.length === 0){
-        alert("Cannot reverse an empty recording.");
+        alertTextbox.innerHTML = "Cannot reverse an empty recording";
+        setTimeout(function(){
+            alertTextbox.innerHTML = "";
+        }, 4000);
         return;
     }
     for (var i = recordingArray.length-1; i >= 0; i--){
@@ -953,12 +924,18 @@ function getMIDIMessage(message) {
 function saveRecording(songName){
 
     if(!checkUserLoggedIn()){
-        alert("Log in before saving any songs");
+        alertTextbox.innerHTML = "Log in before saving any songs";
+        setTimeout(function(){
+            alertTextbox.innerHTML = "";
+        }, 4000);
         return;
     }
 
     if(songName.trim().length == 0){
-        alert("Song name must not be blank");
+        alertTextbox.innerHTML = "Song name must not be blank";
+        setTimeout(function(){
+            alertTextbox.innerHTML = "";
+        }, 4000);
         return;
     }
 
@@ -967,7 +944,9 @@ function saveRecording(songName){
         "jsMidiEventList" : recordingArray
     };
 
-    $.ajax({
+    alertTextbox.innerHTML = "Saving. Please wait";
+
+        $.ajax({
         type: "POST",
         contentType: "application/json",
         url: "/song/save",
@@ -980,6 +959,11 @@ function saveRecording(songName){
             newSongOption.text = songName;
             savedSongsDropdown.add(newSongOption);
             songsList.push(data);
+            alertTextbox.innerHTML = "Song saved";
+            songNameInput.value = "";
+            setTimeout(function(){
+                alertTextbox.innerHTML = "";
+            }, 4000);
         }
     })
 
@@ -999,6 +983,7 @@ function songSelect(selectedOption){
     var selectedSongId = selectedOption.value;
     recordingArray = getSongById(selectedSongId)["jsMidiEventList"];
 
+    alertTextbox.innerHTML = selectedOption.innerHTML;
     clearOtherSelectTabs("saved-songs");
 }
 
@@ -1073,9 +1058,11 @@ function deleteAccount(){
             'X-Token' : localStorage.getItem("token")
         },
         success: function(data){
-            alert("Your account has been deleted. We're sorry to see you go!");
-            console.log(data);
-            window.location.replace("index.html");
+            alertTextbox.innerHTML = "Account deleted. We're sorry to see you go!";
+            setTimeout(function(){
+                alertTextbox.innerHTML = "";
+                window.location.replace("index.html");
+            }, 4000);
         },
         error: function (data) {
             console.log(data);
