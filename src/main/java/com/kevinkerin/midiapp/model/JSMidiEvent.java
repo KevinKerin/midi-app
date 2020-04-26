@@ -7,6 +7,14 @@ import javax.persistence.*;
 @Entity
 @Table(name="jsmidievent")
 public class JSMidiEvent {
+
+//    JSMidiEvent is either of type noteon, noteoff, or controlchange
+//    Constitutes one event in a list of JSMidiEvents within a song created by the user
+//    Timestamp ensures correct order and spacing between events during playback
+//    Velocity is only used in noteon cases to denote how strong the key has been pressed
+//    Note class is only ued in noteon or noteoff cases
+//    Sustain pedal pushes will initialise a new Controller object
+
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "eventId", nullable = false) private Integer eventId;
     @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="songId") @JsonIgnore private Song song;

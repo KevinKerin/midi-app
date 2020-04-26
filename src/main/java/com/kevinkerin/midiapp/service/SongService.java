@@ -25,20 +25,28 @@ public class SongService {
     @Autowired
     private UserRepository userRepository;
 
+
     public Song saveSong(Song song, String token){
+//        method retrieves userId using token, then assigns userId to song
         Integer userId = getUserIdByToken(token);
         song.setUserId(userId);
         song.setDate(new Date());
+//        eventList is a temporary array list, song's JSMidiEventList is
+//        wiped in order to set the songId on each JSMidiEvent
         List<JSMidiEvent> eventList = song.getJsMidiEventList();
         song.setJsMidiEventList(new ArrayList<>());
         Song savedSong = songRepository.save(song);
         for (JSMidiEvent jsme : eventList){
+//            Each JSMidiEvent object is assiged the correct songId
             jsme.setSong(savedSong);
         }
         song.setJsMidiEventList(eventList);
 
+//        Song is saved to database
         savedSong = songRepository.save(song);
 
+//        This loop retrieves the song and initialises a new note or
+//        controller object depending on the event type
         for (JSMidiEvent jsme : savedSong.getJsMidiEventList()){
             if(jsme.getType().equals("noteon") || jsme.getType().equals("noteoff")){
                 Note note = jsme.getNote();
@@ -49,6 +57,7 @@ public class SongService {
             }
         }
 
+//        savedSong is resaved to database
         return songRepository.save(savedSong);
     }
 
@@ -68,6 +77,7 @@ public class SongService {
         return songRepository.findByUserId(userId);
     }
 
+    //    Session is validated and userId is returned
     private Integer getUserIdByToken(String token){
         Session session = sessionRepository.findByToken(token);
         if (session == null){
@@ -86,6 +96,7 @@ public class SongService {
         return session.getUserId();
     }
 
+//    Session is validated and song is deleted
     public void deleteSongBySongId(Integer songId, String token){
         Session session = sessionRepository.findByToken(token);
         if(session == null){

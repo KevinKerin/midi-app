@@ -8,6 +8,10 @@ import javax.persistence.*;
 @Table(name = "note")
 public class Note {
 
+//    One to One annotation with JSMidiEvent
+//    noteon or noteoff type JSMidiEvents will initialise a new Note object
+//    Number, name and octave are all details on which key has been pressed
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO) @Column(name="id", unique = true) private int id;
     @OneToOne(cascade=CascadeType.ALL, fetch=FetchType.LAZY) @JoinColumn(name="jsMidiEventId") @JsonIgnore private JSMidiEvent jsMidiEvent;

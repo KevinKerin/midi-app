@@ -5,7 +5,6 @@ import com.kevinkerin.midiapp.dal.UserRepository;
 import com.kevinkerin.midiapp.dto.*;
 import com.kevinkerin.midiapp.exception.AuthorizationException;
 import com.kevinkerin.midiapp.exception.LoginException;
-import com.kevinkerin.midiapp.exception.NotFoundException;
 import com.kevinkerin.midiapp.exception.ValidationException;
 import com.kevinkerin.midiapp.model.LoginDetails;
 import com.kevinkerin.midiapp.model.Session;
@@ -17,9 +16,7 @@ import org.springframework.util.StringUtils;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -31,6 +28,9 @@ public class UserService {
     @Autowired
     private SessionRepository sessionRepository;
 
+//    Form validation is undertaken to ensure correct registration
+//    userRepository checks for accounts under same email or username
+//    method returns a UserOutputDTO Object
     public UserOutputDTO createUser(UserRegistrationDTO userRegistrationDTO) throws NoSuchAlgorithmException {
         if(userRegistrationDTO == null){
             throw new ValidationException("New user is null");
@@ -57,6 +57,7 @@ public class UserService {
         return convertOutputDTO(user);
     }
 
+//    Method takes in a registration DTO and returns a new User object
     private User convertRegistrationDTO(UserRegistrationDTO userRegistrationDTO) throws NoSuchAlgorithmException {
         User user = new User();
         user.setFirstName(userRegistrationDTO.getFirstName());
@@ -68,6 +69,7 @@ public class UserService {
         return user;
     }
 
+//    method takes in a User object and returns a new UserOutputDTO
     private UserOutputDTO convertOutputDTO(User user){
         if(user == null){
             return null;
@@ -81,12 +83,15 @@ public class UserService {
         return userOutputDTO;
     }
 
+//    Hashing password method for secure saving of password in database
     private String hashPassword(String password) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] encodedhash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
         return bytesToHex(encodedhash);
     }
 
+//    Method takes in a hashed password and changes it to hexidecimal form
+//    then returning the hex in a string
     private static String bytesToHex(byte[] hash) {
         StringBuffer hexString = new StringBuffer();
         for (int i = 0; i < hash.length; i++) {
@@ -97,14 +102,17 @@ public class UserService {
         return hexString.toString();
     }
 
+//    Finds user based on userId
     public UserOutputDTO findUserByUserId(int id){
         return convertOutputDTO(userRepository.findByUserId(id));
     }
 
+//    Finds user based on username - not used in the end
     public UserOutputDTO findUserByUsername(String username){
         return convertOutputDTO(userRepository.findByUsername(username));
     }
 
+//    Logs in user, saves new session to database and returns new token to user for verification
     public TokenDTO loginUser(LoginDetails loginDetails) throws NoSuchAlgorithmException {
         User user = userRepository.findByUsername(loginDetails.getUsername());
         if (user == null) {
@@ -125,6 +133,7 @@ public class UserService {
         }
     }
 
+//    Edits any desired changes by the user and updates in the database
     public UserOutputDTO updateUserDetails(UserUpdateDTO userUpdateDTO, String token) throws NoSuchAlgorithmException {
         if(userUpdateDTO == null){
             throw new ValidationException("Updated user is null");
@@ -149,6 +158,7 @@ public class UserService {
         return convertOutputDTO(user);
     }
 
+//    Changes password for user, once criteria has been passed
     public UserOutputDTO changePassword(PasswordUpdateDTO passwordUpdateDTO, String token) throws NoSuchAlgorithmException {
         if(passwordUpdateDTO == null){
             throw new ValidationException("PasswordUpdateDTO is null");

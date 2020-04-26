@@ -6,6 +6,8 @@ import javax.persistence.*;
 @Table(name = "user")
 public class User {
 
+//    User class generates unique ID on registration
+
     @Id @GeneratedValue(strategy = GenerationType.AUTO) @Column(name="userId", unique = true) private int userId;
     @Column(name = "firstName", nullable = false) private String firstName;
     @Column(name = "lastName", nullable = false) private String lastName;

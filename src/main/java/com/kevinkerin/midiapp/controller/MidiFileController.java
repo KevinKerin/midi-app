@@ -14,6 +14,7 @@ public class MidiFileController {
     @Autowired
     private MidiDownloadService midiDownloadService;
 
+//    Receives list of JSMidiEvents and prints to console
     @GetMapping(value = "/json")
     public void getJson(@RequestBody List<JSMidiEvent> list){
         for (JSMidiEvent jsme : list){
@@ -21,6 +22,9 @@ public class MidiFileController {
         }
     }
 
+//    Post request for downloading MIDI file in byte array form
+//    Will be called by downloadMidiFileBase64
+//    Returns byte array of JSMidiEvent list
     @PostMapping(value = "/download", produces = "audio/midi")
     public byte[] downloadMidiFile(@RequestBody List<JSMidiEvent> list){
 
@@ -31,6 +35,8 @@ public class MidiFileController {
         return midiDownloadService.downloadMidiFile(list);
     }
 
+//    Post request for downloading MIDI File
+//    Returns byte array to user for download
     @PostMapping(value = "/downloadBase64", produces = "text/plain")
     public String downloadMidiFileBase64(@RequestBody List<JSMidiEvent> list){
 

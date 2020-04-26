@@ -16,6 +16,7 @@ public class SongController {
     @Autowired
     private SongService songService;
 
+//    Uses token to validate user, then saves song to database using songService
     @PostMapping("/save")
     public Song saveSong(@RequestBody Song song, @RequestHeader("X-Token") String token){
 
@@ -24,6 +25,7 @@ public class SongController {
         return newSong;
     }
 
+//    Retrieves song using songId, validates using token
     @GetMapping(value = "/getSong/{songId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Song getSong(@PathVariable(name="songId") int songId, @RequestHeader("X-Token") String token){
         Song song = songService.findSongBySongId(songId, token);
@@ -31,6 +33,7 @@ public class SongController {
         return song;
     }
 
+//    Returns all users songs - not used in this app for now
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Song> getUserSongs(@RequestHeader("X-Token") String token) {
         List<Song> songList = songService.findSongsByUserId(token);
@@ -43,6 +46,8 @@ public class SongController {
         return songList;
     }
 
+//    Uses token and songId to validate and find song respectively
+//    Deletes entry from table
     @GetMapping(value = "/delete/{songId}")
     public void deleteSong(@PathVariable int songId, @RequestHeader("X-Token") String token){
         songService.deleteSongBySongId(songId, token);

@@ -9,6 +9,12 @@ import javax.persistence.*;
 @Table(name = "controller")
 public class Controller {
 
+//    Controller class is used for sustain pedal on user's part
+//    Has one to one annotation with JSMidiEvent class
+//    Contains number 0-127
+//    <64 is pedal off
+//    >64 is pedal on
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO) @Column(name="id", unique = true) private int id;
     @OneToOne(cascade=CascadeType.ALL, fetch=FetchType.LAZY) @JoinColumn(name="jsMidiEventId") @JsonIgnore

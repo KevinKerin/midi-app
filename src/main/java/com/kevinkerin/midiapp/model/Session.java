@@ -9,6 +9,10 @@ import javax.persistence.Table;
 @Table(name = "session")
 public class Session {
 
+//    A new session object is initialised on login by the user
+//    UserService will initialise a new Session when logging a user in
+//    and saves it in the Session table within the DB
+
     @Id
     @GeneratedValue
     private long id;

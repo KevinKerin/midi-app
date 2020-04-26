@@ -9,6 +9,8 @@ import java.util.List;
 @Table(name = "song")
 public class Song {
 
+//    Song class will contain a list of JSMidiEvents, each containing its own ID
+
     @Id @GeneratedValue(strategy = GenerationType.AUTO) @Column(name="songId", unique = true) private int songId;
     @Column(name = "userId", nullable = false) private int userId;
     @Column(name = "songName", nullable = false) private String songName;
@@ -20,26 +22,6 @@ public class Song {
             cascade = CascadeType.ALL
     )
     private List<JSMidiEvent> jsMidiEventList;
-
-//    public static void main(String[] args) {
-//        List<JSMidiEvent> eventList = new ArrayList<>();
-//        for (int i = 0; i < 20; i++) {
-//            JSMidiEvent jsme = new JSMidiEvent();
-//            jsme.setChannel(1);
-//            jsme.setNoteNumber(50);
-//            jsme.setType("noteon");
-//            jsme.setTimestamp(500);
-//            jsme.setVelocity(0.5);
-//            eventList.add(jsme);
-//        }
-//        Song song = new Song(eventList, "Testy test test", 1);
-//        System.out.println(song.getSongLength());
-//        System.out.println(song.songLength);
-//        System.out.println(song.jsMidiEventList.size());
-//
-//        System.out.println(song.getJsMidiEventList());
-//        System.out.println(song);
-//    }
 
     public Song() {
     }

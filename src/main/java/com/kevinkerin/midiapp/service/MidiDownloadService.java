@@ -19,8 +19,7 @@ public class MidiDownloadService {
     public byte[] downloadMidiFile(List<JSMidiEvent> midiEventList){
 
         int tempo = 80;
-        String trackName = "Bohemian Rhapsody";
-        String fileName = "bohemian-rhapsody.mid";
+        String trackName = "";
 
         System.out.println("midifile begin ");
         try {
@@ -77,18 +76,6 @@ public class MidiDownloadService {
                     mm.setMessage(0x90, noteNumber,0x60);
                     me = new MidiEvent(mm, (long) (event.getTimestamp() / (1000/50)));
                     t.add(me);
-//                    System.out.println("Short message noteon get channel: " + mm.getChannel());
-//                    System.out.println("Short message noteon get command: " + mm.getCommand());
-//                    System.out.println("Short message noteon get data1: " + mm.getData1());
-//                    System.out.println("Short message noteon get data2: " + mm.getData2());
-//                    System.out.println("Short message noteon get length: " + mm.getLength());
-//                    System.out.println("Event timestamp: " + event.getTimestamp());
-//                    System.out.println("Shouldn't be 0...: " + "Resolution: " + (long) resolution/tempo + ", 1/tempo" + (double) 1/tempo + ", getTimestamp:" + (long) event.getTimestamp());
-//                    System.out.println("Shouldn't be 0...: " + (long) resolution * (double) 1/tempo * 10 * event.getTimestamp());
-//                    me = new MidiEvent(mm,(long)((long) resolution * (double) 1/tempo * 10 * event.getTimestamp()));
-//                    me = new MidiEvent(mm,(long)event.getTimestamp());
-//                    System.out.println("MidiEvent get message: " + me.getMessage());
-//                    System.out.println("MidiEvent get tick: " + me.getTick());
 
                 } else if(event.getType().equals("noteoff")){
 
@@ -98,18 +85,6 @@ public class MidiDownloadService {
                     mm.setMessage(0x80, noteNumber,0x40);
                     me = new MidiEvent(mm, (long) (event.getTimestamp() / (1000/50)));
                     t.add(me);
-//                    System.out.println("Short message noteoff get channel: " + mm.getChannel());
-//                    System.out.println("Short message noteoff get command: " + mm.getCommand());
-//                    System.out.println("Short message noteoff get data1: " + mm.getData1());
-//                    System.out.println("Short message noteoff get data2: " + mm.getData2());
-//                    System.out.println("Short message noteoff get length: " + mm.getLength());
-//                    System.out.println("Event timestamp: " + event.getTimestamp());
-//                    System.out.println("Shouldn't be 0...: " + "Resolution: " + (long) resolution + ", Tempo: " + (tempo) + ", 1/tempo" + (double) 1/tempo + ", getTimestamp:" + (long) event.getTimestamp());
-//                    System.out.println("Shouldn't be 0...: " + (long) resolution * (double) 1/tempo * 10 * event.getTimestamp());
-//                    me = new MidiEvent(mm,(long)((long) resolution * (double) 1/tempo * 10 * event.getTimestamp()));
-//                    me = new MidiEvent(mm,(long)event.getTimestamp());
-//                    System.out.println("MidiEvent get message: " + me.getMessage());
-//                    System.out.println("MidiEvent get tick: " + me.getTick());
 
                 } else if(event.getType().equals("controlchange")){
                     int pedalValue = event.getValue();
@@ -122,13 +97,7 @@ public class MidiDownloadService {
                 }
             }
 
-//****  note on - middle C  ****
-
-
-//****  note off - middle C - 120 ticks later  ****
-
-
-//****  set end of track (meta event) 19 ticks later  ****
+//****  set end of track****
 
             double endOfSong = midiEventList.get(midiEventList.size()-1).getTimestamp();
             System.out.println("Last timestamp = " + endOfSong);
@@ -147,7 +116,7 @@ public class MidiDownloadService {
         } catch(Exception e) {
             System.out.println("Exception caught " + e.toString());
             System.out.println("midifile end ");
-        } //catch
+        }
 
         return null;
 
